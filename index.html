@@ -5,11 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Minecraft Aurora Edition v1.2</title>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
 <style>
 *{
     margin:0;
     padding:0;
     box-sizing:border-box;
+    user-select: none;
 }
 
 body{
@@ -36,7 +39,7 @@ body{
 
 #gameLoadingScreen {
     display: none;
-    background: #1a1a1a; /* Fundo escuro para o carregamento do jogo */
+    background: #141414;
 }
 
 .loadingTitle{
@@ -76,6 +79,7 @@ body{
     margin-top:15px;
     text-align: center;
     max-width: 80%;
+    min-height: 60px;
 }
 
 /* ========================= */
@@ -218,7 +222,6 @@ body{
     position: relative;
 }
 
-/* Abas Superiores */
 .abas-container {
     display: flex;
     justify-content: space-between;
@@ -245,7 +248,6 @@ body{
     border-color: #fff;
 }
 
-/* Paineis de Conteúdo */
 .painel-conteudo {
     display: none;
     min-height: 250px;
@@ -256,7 +258,6 @@ body{
     display: block;
 }
 
-/* Tela de Criação de Mundo */
 .campo-grupo {
     margin-bottom: 20px;
 }
@@ -299,7 +300,6 @@ body{
     border-color: #fff;
 }
 
-/* Botões Inferiores do Modal */
 .modal-footer {
     display: flex;
     justify-content: space-between;
@@ -320,13 +320,68 @@ body{
 .btn-fechar { background: #b30000; }
 .btn-fechar:hover { background: #e60000; }
 
-/* Responsivo */
+/* ========================= */
+/* TELA DO JOGO (3D REAL)    */
+/* ========================= */
+
+#gameContainer {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+}
+
+.game-ui {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    color: white;
+    font-family: monospace;
+    font-size: 16px;
+    text-shadow: 2px 2px 0 #000;
+    background: rgba(0,0,0,0.5);
+    padding: 15px;
+    border: 2px solid #555;
+    pointer-events: none;
+    z-index: 55;
+}
+
+.btn-sair-jogo {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    background: #b30000;
+    color: white;
+    border: 2px solid white;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 60;
+}
+
+/* Mira no centro da tela */
+.crosshair {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 55;
+}
+.crosshair::before, .crosshair::after {
+    content: '';
+    position: absolute;
+    background: rgba(255, 255, 255, 0.7);
+}
+.crosshair::before { top: 9px; left: 0; width: 20px; height: 2px; }
+.crosshair::after { top: 0; left: 9px; width: 2px; height: 20px; }
+
 @media(max-width:600px){
     .minecraft{ font-size:48px; }
     .aurora{ font-size:22px; }
     .btn{ width:90%; }
-    .abas-container { flex-direction: column; gap: 5px; }
-    .modo-opcoes { flex-direction: column; }
 }
 </style>
 </head>
@@ -342,7 +397,7 @@ body{
 <div id="gameLoadingScreen">
     <div class="loadingTitle" style="font-size: 45px;">Gerando Mundo...</div>
     <div class="loadingBar"><div class="loadingFill" id="gameLoadingFill" style="background: dodgerblue;"></div></div>
-    <div class="loadingText" id="gameLoadingText" style="font-style: italic; color: #ddd;">"Não mate golfinhos, seu monstro."</div>
+    <div class="loadingText" id="gameLoadingText" style="font-style: italic; color: #ddd;">"Preparando blocos..."</div>
 </div>
 
 <div id="mainMenu">
@@ -364,7 +419,6 @@ body{
 
 <div class="modal-jogar" id="modalJogar">
     <div class="conteudo-modal">
-        
         <div class="abas-container">
             <button class="aba-btn ativa" onclick="mudarAba('mundos')">Mundos</button>
             <button class="aba-btn" onclick="mudarAba('realms')">Realms</button>
@@ -373,12 +427,10 @@ body{
 
         <div id="painel-mundos" class="painel-conteudo ativo">
             <h3 style="margin-bottom:15px;">Criar Novo Mundo</h3>
-            
             <div class="campo-grupo">
                 <label>Nome do Mundo:</label>
-                <input type="text" id="nomeMundo" value="Meu Mundo">
+                <input type="text" id="nomeMundo" value="Mundo das Montanhas">
             </div>
-
             <div class="campo-grupo">
                 <label>Modo de Jogo:</label>
                 <div class="modo-opcoes">
@@ -389,30 +441,40 @@ body{
             </div>
         </div>
 
-        <div id="painel-realms" class="painel-conteudo">
-            <p style="text-align:center; margin-top:50px; color:#aaa;">Realms não disponível nesta versão.</p>
-        </div>
-
-        <div id="painel-servidores" class="painel-conteudo">
-            <p style="text-align:center; margin-top:50px; color:#aaa;">Servidores não disponíveis nesta versão.</p>
-        </div>
+        <div id="painel-realms" class="painel-conteudo"><p style="text-align:center; margin-top:50px; color:#aaa;">Realms indisponível.</p></div>
+        <div id="painel-servidores" class="painel-conteudo"><p style="text-align:center; margin-top:50px; color:#aaa;">Servidores indisponíveis.</p></div>
 
         <div class="modal-footer">
             <button class="btn-modal btn-fechar" onclick="fecharModalJogar()">Voltar</button>
             <button class="btn-modal btn-criar" id="btnCriarMundo" onclick="iniciarCarregamentoMundo()">Criar Mundo</button>
         </div>
+    </div>
+</div>
 
+<div id="gameContainer">
+    <div class="crosshair"></div>
+    <button class="btn-sair-jogo" onclick="sairDoJogo()">Sair para o Menu</button>
+    <div class="game-ui">
+        <div id="ui-nome">Mundo: </div>
+        <div id="ui-modo">Modo: </div>
+        <div id="ui-pos" style="margin-top: 5px; color: lime;">X: 0 | Y: 0 | Z: 0</div>
+        <div style="margin-top: 10px; font-size: 12px; color: #bbb;">
+            [W, A, S, D] Mover<br>
+            [Setas] Olhar ao Redor<br>
+            [Espaço] Voar / Subir<br>
+            [Shift] Descer
+        </div>
     </div>
 </div>
 
 <script>
-// --- Carregamento Inicial ---
+// --- Carregamento Inicial do Menu ---
 let progresso = 0;
 let barra = document.getElementById("loadingFill");
 let texto = document.getElementById("loadingText");
 
 let carregamento = setInterval(() => {
-    progresso++;
+    progresso += 2;
     barra.style.width = progresso + "%";
     texto.innerHTML = "Carregando... " + progresso + "%";
 
@@ -423,44 +485,28 @@ let carregamento = setInterval(() => {
             setTimeout(()=>{
                 document.getElementById("loadingScreen").style.display="none";
                 document.getElementById("mainMenu").style.display="block";
-            },1000);
+            },500);
         },500);
     }
-}, 40);
+}, 15);
 
-// --- Sistema do Menu de Jogar (Abas) ---
+// --- Sistema de Menu/Abas ---
 let modoSelecionado = "Criativo";
-
-function abrirModalJogar() {
-    document.getElementById("modalJogar").style.display = "flex";
-}
-
-function fecharModalJogar() {
-    document.getElementById("modalJogar").style.display = "none";
-}
+function abrirModalJogar() { document.getElementById("modalJogar").style.display = "flex"; }
+function fecharModalJogar() { document.getElementById("modalJogar").style.display = "none"; }
 
 function mudarAba(aba) {
-    // Resetar botões das abas
     let botoes = document.querySelectorAll('.aba-btn');
-    botoes.forEach(b => b.classList.remove('ativa'));
-    
-    // Resetar painéis
+    botoes.forEach(b => b.classList.remove('active'));
     let paineis = document.querySelectorAll('.painel-conteudo');
     paineis.forEach(p => p.classList.remove('ativo'));
-
-    // Ativar o correto e gerenciar botão de criar mundo
     let btnCriar = document.getElementById("btnCriarMundo");
+    
     if (aba === 'mundos') {
         document.getElementById('painel-mundos').classList.add('ativo');
         botoes[0].classList.add('ativa');
         btnCriar.style.display = "block";
-    } else if (aba === 'realms') {
-        document.getElementById('painel-realms').classList.add('ativo');
-        botoes[1].classList.add('ativa');
-        btnCriar.style.display = "none";
-    } else if (aba === 'servidores') {
-        document.getElementById('painel-servidores').classList.add('ativo');
-        botoes[2].classList.add('ativa');
+    } else {
         btnCriar.style.display = "none";
     }
 }
@@ -470,27 +516,25 @@ function selecionarModo(modo) {
     document.getElementById("btn-criativo").classList.remove("selecionado");
     document.getElementById("btn-sobrevivencia").classList.remove("selecionado");
     document.getElementById("btn-hardcore").classList.remove("selecionado");
-
     if(modo === 'Criativo') document.getElementById("btn-criativo").classList.add("selecionado");
     if(modo === 'Sobrevivência') document.getElementById("btn-sobrevivencia").classList.add("selecionado");
-    if(modo === 'Hardcore') document.getElementById("btn-hardcore").classList.add("selecionadd"); // Corrigido a classe abaixo
-    if(modo === 'Hardcore') document.getElementById("btn-hardcore").className = "modo-btn selecionado";
+    if(modo === 'Hardcore') document.getElementById("btn-hardcore").classList.add("selecionado");
 }
 
-// --- Nova Tela de Carregamento do Mundo ---
+// --- Novas Frases Solicitadas ---
 const dicasMinecraft = [
     "Não mate golfinhos, seu monstro.",
     "Sabia que se assar um tronco de madeira em uma fornalha ele vira carvão vegetal?",
-    "Nunca cave diretamente para baixo!",
+    "Nunca cave diretamente para baixo! (A lava te espera).",
     "Gatos espantam Creepers. Miau!",
-    "Olhar nos olhos de um Enderman não é uma boa ideia.",
-    "Precisa de lã? Use tesouras nas ovelhas para não machucá-las."
+    "Olhar nos olhos de um Enderman não é uma boa ideia...",
+    "Precisa de lã? Use tesouras nas ovelhas para não machucá-las.",
+    "Gerando montanhas infinitas com blocos de Pedra e Terra...",
+    "Empilhando blocos de Grama perfeitamente quadradas..."
 ];
 
 function iniciarCarregamentoMundo() {
-    let nomeMundo = document.getElementById("nomeMundo").value || "Meu Mundo";
-    
-    // Fechar o modal e abrir a nova tela de carregamento do jogo
+    let nomeMundo = document.getElementById("nomeMundo").value || "Meu Mundo 3D";
     fecharModalJogar();
     document.getElementById("mainMenu").style.display = "none";
     
@@ -499,23 +543,18 @@ function iniciarCarregamentoMundo() {
     let gameText = document.getElementById("gameLoadingText");
     
     gameLoadingScreen.style.display = "flex";
-    gameLoadingScreen.style.opacity = "1";
     
     let gameProgresso = 0;
-    gameBar.style.width = "0%";
-    
-    // Escolhe uma dica aleatória
-    let dicaAleatoria = dicasMinecraft[Math.floor(Math.random() * dicasMinecraft.length)];
-    gameText.innerHTML = `"${dicaAleatoria}"`;
+    let fraseIndex = 0;
+    gameText.innerHTML = `"${dicasMinecraft[0]}"`;
 
-    // Intervalo de troca de dicas a cada 2 segundos se demorar
     let dicaInterval = setInterval(() => {
-        let novaDica = dicasMinecraft[Math.floor(Math.random() * dicasMinecraft.length)];
-        gameText.innerHTML = `"${novaDica}"`;
-    }, 2000);
+        fraseIndex = (fraseIndex + 1) % dicasMinecraft.length;
+        gameText.innerHTML = `"${dicasMinecraft[fraseIndex]}"`;
+    }, 1000);
 
     let jogoCarregado = setInterval(() => {
-        gameProgresso += 2; // Sobe de 2 em 2%
+        gameProgresso += 2;
         gameBar.style.width = gameProgresso + "%";
 
         if(gameProgresso >= 100){
@@ -523,13 +562,213 @@ function iniciarCarregamentoMundo() {
             clearInterval(dicaInterval);
             
             setTimeout(() => {
-                alert(`Mundo "${nomeMundo}" criado com sucesso no modo ${modoSelecionado}! (Aqui começaria o seu jogo)`);
-                // Volta para o menu principal após fechar o alerta
                 gameLoadingScreen.style.display = "none";
-                document.getElementById("mainMenu").style.display = "block";
-            }, 500);
+                inicializarMundoMinecraft3D(nomeMundo, modoSelecionado);
+            }, 400);
         }
-    }, 60); // Velocidade do carregamento do mundo
+    }, 40); 
+}
+
+// ==========================================
+// ENGINE MINECRAFT 3D REAL (THREE.JS)
+// ==========================================
+let cena, camera, renderizador;
+let jogandoAtivo = false;
+let chaves = {};
+let blocosCarregados = {};
+let anguloHorizontal = 0, anguloVertical = 0;
+const TAMANHO_BLOCO = 1;
+const DISTANCIA_RENDER = 16; // Raio de renderização infinita ao redor do jogador
+
+// Função simples para simular relevo (Montanhas) matematicamente
+function obterAlturaMontanha(x, z) {
+    let altura = Math.sin(x * 0.1) * Math.cos(z * 0.1) * 4;
+    altura += Math.sin(x * 0.03) * 6; // Adiciona montanhas maiores
+    return Math.floor(altura);
+}
+
+// Criar texturas pixeladas simuladas em Canvas para carregar super leve
+function criarTexturaMinecraft(tipo) {
+    let canvasTex = document.createElement('canvas');
+    canvasTex.width = 16;
+    canvasTex.height = 16;
+    let ctxTex = canvasTex.getContext('2d');
+    
+    for(let x=0; x<16; x++) {
+        for(let y=0; y<16; y++) {
+            let ruido = Math.random() * 25;
+            if(tipo === 'grama_topo') {
+                ctxTex.fillStyle = `rgb(${40}, ${140 + ruido}, ${40})`;
+            } else if (tipo === 'terra') {
+                ctxTex.fillStyle = `rgb(${110 + ruido}, ${70 + ruido}, ${40})`;
+            } else if (tipo === 'pedra') {
+                ctxTex.fillStyle = `rgb(${110 + ruido}, ${110 + ruido}, ${110 + ruido})`;
+            } else if (tipo === 'grama_lado') {
+                if(y < 5) ctxTex.fillStyle = `rgb(${40}, ${140 + ruido}, ${40})`;
+                else ctxTex.fillStyle = `rgb(${110 + ruido}, ${70 + ruido}, ${40})`;
+            }
+            ctxTex.fillRect(x, y, 1, 1);
+        }
+    }
+    let textura = new THREE.CanvasTexture(canvasTex);
+    textura.magFilter = THREE.NearestFilter; // Deixa o visual todo pixelado estilo original!
+    textura.minFilter = THREE.NearestFilter;
+    return new THREE.MeshLambertMaterial({ map: textura });
+}
+
+function inicializarMundoMinecraft3D(nome, modo) {
+    document.getElementById("gameContainer").style.display = "block";
+    document.getElementById("ui-nome").innerText = "Mundo: " + nome;
+    document.getElementById("ui-modo").innerText = "Modo: " + modo;
+
+    // Criar Cena e Câmera
+    cena = new THREE.Scene();
+    cena.background = new THREE.Color(0x78a7ff); // Céu do Mine
+    cena.fog = new THREE.FogExp2(0x78a7ff, 0.05); // Névoa de distância
+
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 10, 0); // Posição inicial do jogador
+
+    renderizador = new THREE.WebGLRenderer({ antialias: false });
+    renderizador.setSize(window.innerWidth, window.innerHeight);
+    document.getElementById("gameContainer").appendChild(renderizador.domElement);
+
+    // Iluminação do Mundo
+    let luzAmbiente = new THREE.AmbientLight(0xcccccc);
+    cena.add(luzAmbiente);
+    let luzSol = new THREE.DirectionalLight(0xffffff, 0.6);
+    luzSol.position.set(10, 20, 15);
+    cena.add(luzSol);
+
+    // Preparar Materiais dos Blocos
+    let matGramaTopo = criarTexturaMinecraft('grama_topo');
+    let matGramaLado = criarTexturaMinecraft('grama_lado');
+    let matTerra = criarTexturaMinecraft('terra');
+    let matPedra = criarTexturaMinecraft('pedra');
+
+    window.materiaisBloco = {
+        grama: [matGramaLado, matGramaLado, matGramaTopo, matTerra, matGramaLado, matGramaLado], // Laterais, cima, baixo
+        terra: Array(6).fill(matTerra),
+        pedra: Array(6).fill(matPedra)
+    };
+
+    // Eventos
+    window.addEventListener("resize", onWindowResize);
+    window.addEventListener("keydown", (e) => chaves[e.key.toLowerCase()] = true);
+    window.addEventListener("keyup", (e) => chaves[e.key.toLowerCase()] = false);
+
+    jogandoAtivo = true;
+    loopMinecraft();
+}
+
+// Atualiza e gera blocos infinitamente ao redor da posição do jogador!
+function atualizarChunksInfinitos() {
+    let pX = Math.floor(camera.position.x);
+    let pZ = Math.floor(camera.position.z);
+    
+    let geo = new THREE.BoxGeometry(TAMANHO_BLOCO, TAMANHO_BLOCO, TAMANHO_BLOCO);
+
+    for (let x = pX - DISTANCIA_RENDER; x < pX + DISTANCIA_RENDER; x++) {
+        for (let z = pZ - DISTANCIA_RENDER; z < pZ + DISTANCIA_RENDER; z++) {
+            let chave = `${x},${z}`;
+            
+            // Se esse pedaço de coluna ainda não foi gerado, vamos criar!
+            if (!blocosCarregados[chave]) {
+                blocosCarregados[chave] = true;
+                let alturaMaxima = obterAlturaMontanha(x, z);
+
+                // Criar coluna de blocos
+                for (let y = alturaMaxima - 5; y <= alturaMaxima; y++) {
+                    let tipoMaterial = materiaisBloco.pedra; // Base profunda de pedra
+                    
+                    if (y === alturaMaxima) {
+                        tipoMaterial = materiaisBloco.grama; // Superfície é Grama
+                    } else if (y > alturaMaxima - 3) {
+                        tipoMaterial = materiaisBloco.terra; // Meio é Terra
+                    }
+
+                    let bloco = new THREE.Mesh(geo, tipoMaterial);
+                    bloco.position.set(x, y, z);
+                    cena.add(bloco);
+                }
+            }
+        }
+    }
+}
+
+function gerenciarControles() {
+    let velocidade = 0.15;
+    let velRotacao = 0.03;
+
+    // Olhar ao redor (Setas esquerda/direita/cima/baixo)
+    if (chaves["arrowleft"]) anguloHorizontal += velRotacao;
+    if (chaves["arrowright"]) anguloHorizontal -= velRotacao;
+    if (chaves["arrowup"]) anguloVertical = Math.min(Math.PI/2.2, anguloVertical + velRotacao);
+    if (chaves["arrowdown"]) anguloVertical = Math.max(-Math.PI/2.2, anguloVertical - velRotacao);
+
+    // Atualizar rotação da câmera
+    let direcao = new THREE.Vector3();
+    direcao.x = Math.sin(anguloHorizontal) * Math.cos(anguloVertical);
+    direcao.y = Math.sin(anguloVertical);
+    direcao.z = Math.cos(anguloHorizontal) * Math.cos(anguloVertical);
+    
+    let alvo = camera.position.clone().add(direcao);
+    camera.lookAt(alvo);
+
+    // Mover jogador (W, S, A, D) baseado para onde ele olha
+    let direcaoMovimento = new THREE.Vector3(Math.sin(anguloHorizontal), 0, Math.cos(anguloHorizontal)).normalize();
+    
+    if (chaves["w"]) {
+        camera.position.x += direcaoMovimento.x * velocidade;
+        camera.position.z += direcaoMovimento.z * velocidade;
+    }
+    if (chaves["s"]) {
+        camera.position.x -= direcaoMovimento.x * velocidade;
+        camera.position.z -= direcaoMovimento.z * velocidade;
+    }
+    if (chaves["a"]) {
+        camera.position.x += direcaoMovimento.z * velocidade;
+        camera.position.z -= direcaoMovimento.x * velocidade;
+    }
+    if (chaves["d"]) {
+        camera.position.x -= direcaoMovimento.z * velocidade;
+        camera.position.z += direcaoMovimento.x * velocidade;
+    }
+
+    // Voar/Subir e Descer (Espaço e Shift)
+    if (chaves[" "]) camera.position.y += velocidade;
+    if (chaves["shift"]) camera.position.y -= velocidade;
+
+    // Atualiza a UI com a posição exata
+    document.getElementById("ui-pos").innerText = `X: ${Math.floor(camera.position.x)} | Y: ${Math.floor(camera.position.y)} | Z: ${Math.floor(camera.position.z)}`;
+}
+
+function loopMinecraft() {
+    if (!jogandoAtivo) return;
+    
+    gerenciarControles();
+    atualizarChunksInfinitos();
+    renderizador.render(cena, camera);
+    
+    requestAnimationFrame(loopMinecraft);
+}
+
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderizador.setSize(window.innerWidth, window.innerHeight);
+}
+
+function sairDoJogo() {
+    jogandoAtivo = false;
+    document.getElementById("gameContainer").style.display = "none";
+    // Limpa o canvas do jogo anterior
+    let canvasDom = renderizador.domElement;
+    if (canvasDom && canvasDom.parentNode) {
+        canvasDom.parentNode.removeChild(canvasDom);
+    }
+    blocosCarregados = {};
+    document.getElementById("mainMenu").style.display = "block";
 }
 </script>
 
