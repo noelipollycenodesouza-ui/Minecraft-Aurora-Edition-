@@ -3,254 +3,270 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Minecraft Aurora: Life with an Environment</title>
+<title>Minecraft: Life with an Environment v2.0</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
 <style>
-*{ margin:0; padding:0; box-sizing:border-box; user-select: none; -webkit-user-select: none; }
-body{ overflow:hidden; font-family:Arial, sans-serif; background:#000; touch-action: none; }
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+body{
+    overflow:hidden;
+    font-family:Arial, sans-serif;
+    background:#000;
+    touch-action: none;
+}
 
 /* ========================= */
 /* TELAS DE CARREGAMENTO     */
 /* ========================= */
 #loadingScreen, #gameLoadingScreen {
-    position:fixed; inset:0; background:#b30000;
-    display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:9999; transition:opacity 0.5s;
+    position:fixed;
+    inset:0;
+    background:#1a4d1a;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
 }
 #gameLoadingScreen { display: none; background: #141414; }
-.loadingTitle{ font-size:70px; font-weight:900; color:white; text-shadow: 3px 3px 0 #999, 6px 6px 0 #555, 9px 9px 15px rgba(0,0,0,.5); }
-.loadingSubtitle{ color:white; font-size:28px; margin-top:10px; }
-.loadingBar{ width:420px; max-width:90%; height:30px; margin-top:40px; background:rgba(0,0,0,.3); border:3px solid white; }
-.loadingFill{ height:100%; width:0%; background:limegreen; }
-.loadingText{ color:white; font-size:24px; margin-top:15px; text-align: center; max-width: 80%; min-height: 60px; }
+.loadingTitle{
+    font-size:70px;
+    font-weight:900;
+    color:white;
+    text-shadow: 3px 3px 0 #333, 6px 6px 0 #222, 9px 9px 15px rgba(0,0,0,.6);
+}
+.loadingSubtitle{ color:#aaffaa; font-size:24px; margin-top:10px; font-style: italic; }
+.loadingBar{ width:420px; max-width:90%; height:30px; margin-top:40px; background:rgba(0,0,0,.5); border:3px solid white; }
+.loadingFill{ height:100%; width:0%; background:#2c9e2c; }
+.loadingText{ color:white; font-size:20px; margin-top:15px; text-align: center; }
 
 /* ========================= */
-/* MENU PRINCIPAL            */
+/* MENU PRINCIPAL E SPLASH   */
 /* ========================= */
 #mainMenu{ display:none; width:100vw; height:100vh; }
-.background{ position:fixed; inset:-25%; background:url("https://images.unsplash.com/photo-1614294148960-9aa740632a87?w=1200") center/cover; filter:blur(10px) brightness(.65); animation:girar 45s linear infinite; }
-@keyframes girar{ from{ transform:rotate(0deg) scale(1.4); } to{ transform:rotate(360deg) scale(1.4); } }
-.overlay{ position:fixed; inset:0; background:rgba(0,0,0,.25); }
+.background{ position:fixed; inset:-25%; background:url("https://images.unsplash.com/photo-1614294148960-9aa740632a87?w=1200") center/cover; filter:blur(8px) brightness(.5); animation:girar 60s linear infinite; }
+@keyframes girar{ from{ transform:rotate(0deg) scale(1.3); } to{ transform:rotate(360deg) scale(1.3); } }
+.overlay{ position:fixed; inset:0; background:rgba(0,0,0,0.3); }
 .menu{ position:relative; z-index:5; height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; }
-.minecraft{ font-size:80px; font-weight:900; color:white; text-shadow: 3px 3px 0 #cfcfcf, 6px 6px 0 #9a9a9a, 9px 9px 0 #5f5f5f, 12px 12px 15px rgba(0,0,0,.7); text-align:center; }
+.minecraft{ font-size:80px; font-weight:900; color:white; text-shadow: 3px 3px 0 #cfcfcf, 6px 6px 0 #9a9a9a, 9px 9px 0 #5f5f5f; position: relative; }
 
-/* Subtítulo da Mega Atualização */
-.subtitulo-life {
-    color: #ffff22; font-size: 26px; font-weight: bold; font-style: italic;
-    text-shadow: 2px 2px 0 #000; margin-top: -5px; margin-bottom: 25px;
-    animation: pulsar 0.6s infinite alternate; text-align: center;
+/* Letreiro Splash Amarelo da Atualização */
+.splash-text {
+    position: absolute;
+    bottom: -25px;
+    right: -40px;
+    color: #ffff00;
+    font-size: 26px;
+    font-weight: bold;
+    text-shadow: 2px 2px 0 #000;
+    transform: rotate(-15deg);
+    animation: puloSplash 0.5s ease-in-out infinite alternate;
 }
-@keyframes pulsar { from { transform: scale(1); } to { transform: scale(1.08); } }
+@keyframes puloSplash {
+    from { transform: rotate(-15deg) scale(1); }
+    to { transform: rotate(-15deg) scale(1.15); }
+}
 
-.aurora{ text-align:center; color:white; font-size:30px; margin-bottom:20px; }
-.cubo{ display:inline-block; width:28px; height:28px; background:linear-gradient(135deg,#00ffff,#7b68ee,#ff66ff); border:2px solid white; margin-right:8px; vertical-align:middle; }
-.btn{ width:380px; padding:18px; margin:8px; font-size:24px; font-weight:bold; background:linear-gradient(#8a8a8a,#5f5f5f); color:white; border:3px solid #444; cursor:pointer; transition:.2s; box-shadow: inset 0 2px 0 rgba(255,255,255,.3), 0 6px 0 #333, 0 10px 15px rgba(0,0,0,.4); }
-.btn:hover{ background:linear-gradient(#63d963,#2c9e2c); border-color:#1d6f1d; transform:translateY(-2px); }
-.criarConta{ position:fixed; left:20px; bottom:20px; width:230px; padding:15px; background:linear-gradient(#8a8a8a,#5f5f5f); color:white; border:3px solid #444; font-size:22px; font-weight:bold; cursor:pointer; }
-.versao{ position:fixed; right:20px; bottom:20px; color:white; font-size:22px; font-weight:bold; }
+.aurora{ color:white; font-size:24px; margin-bottom:35px; margin-top:35px; font-weight: bold; letter-spacing: 2px;}
+.btn{ width:380px; padding:18px; margin:8px; font-size:22px; font-weight:bold; background:linear-gradient(#8a8a8a,#5f5f5f); color:white; border:3px solid #444; cursor:pointer; box-shadow: inset 0 2px 0 rgba(255,255,255,.3), 0 5px 0 #333; }
+.btn:hover{ background:linear-gradient(#4caf50,#2e7d32); border-color:#1b5e20; }
 
-/* ========================= */
-/* MODAL SELEÇÃO DE MUNDO    */
-/* ========================= */
-.modal-jogar { display: none; position: fixed; inset: 0; z-index: 10; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; }
-.conteudo-modal { background: #2c2c2c; border: 4px solid #4a4a4a; width: 650px; max-width: 95%; padding: 20px; box-shadow: 0 0 20px rgba(0,0,0,0.8); }
-.campo-grupo { margin-bottom: 20px; color: white; }
-.campo-grupo label { display: block; font-size: 18px; margin-bottom: 8px; font-weight: bold; }
-.campo-grupo input[type="text"] { width: 100%; padding: 12px; font-size: 18px; background: #1a1a1a; border: 2px solid #4a4a4a; color: white; }
-.modo-opcoes { display: flex; gap: 10px; }
-.modo-btn { flex: 1; padding: 12px; font-size: 16px; background: #1a1a1a; color: white; border: 2px solid #4a4a4a; cursor: pointer; }
-.modo-btn.selecionado { background: #2c9e2c; border-color: #fff; }
-.modal-footer { display: flex; justify-content: space-between; margin-top: 20px; }
+/* MODAL DE SELEÇÃO */
+.modal-jogar { display: none; position: fixed; inset: 0; z-index: 10; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; }
+.conteudo-modal { background: #2c2c2c; border: 4px solid #4a4a4a; width: 600px; max-width: 95%; padding: 20px; color: white; }
+.campo-grupo { margin-bottom: 15px; }
+.campo-grupo input { width: 100%; padding: 10px; background: #111; border: 2px solid #555; color: white; font-size: 16px; }
+.modo-opcoes { display: flex; gap: 10px; margin-top: 5px; }
+.modo-btn { flex:1; padding: 10px; background: #222; border: 2px solid #555; color: white; font-weight: bold; cursor: pointer; }
+.modo-btn.selecionado { background: #2e7d32; border-color: white; }
 
 /* ========================= */
 /* HUD DENTRO DO JOGO        */
 /* ========================= */
 #gameContainer { display: none; position: fixed; inset: 0; z-index: 50; }
-.crosshair { position: fixed; top: 50%; left: 50%; width: 20px; height: 20px; transform: translate(-50%, -50%); pointer-events: none; z-index: 55; }
-.crosshair::before, .crosshair::after { content: ''; position: absolute; background: rgba(255, 255, 255, 0.6); }
-.crosshair::before { top: 9px; left: 0; width: 20px; height: 2px; }
-.crosshair::after { top: 0; left: 9px; width: 2px; height: 20px; }
+.crosshair { position: fixed; top: 50%; left: 50%; width: 18px; height: 18px; transform: translate(-50%, -50%); pointer-events: none; z-index: 55; }
+.crosshair::before, .crosshair::after { content: ''; position: absolute; background: rgba(255,255,255,0.7); }
+.crosshair::before { top: 8px; left: 0; width: 18px; height: 2px; }
+.crosshair::after { top: 0; left: 8px; width: 2px; height: 18px; }
 
-.btn-sair-jogo { position: absolute; top: 15px; right: 15px; padding: 8px 15px; background: #b30000; color: white; border: 2px solid white; font-weight: bold; z-index: 60; }
-.btn-inventario-toggle { position: absolute; top: 15px; right: 120px; padding: 8px 15px; background: #555; color: white; border: 2px solid white; font-weight: bold; z-index: 60; }
+.btn-sair-jogo { position: absolute; top: 15px; right: 15px; padding: 8px 12px; background: #b30000; color: white; border: 2px solid white; font-weight: bold; cursor: pointer; z-index: 60; }
+.btn-inventario-toggle { position: absolute; top: 15px; right: 100px; padding: 8px 12px; background: #444; color: white; border: 2px solid white; font-weight: bold; cursor: pointer; z-index: 60; }
 
-.status-bars { position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%); width: 360px; display: none; justify-content: space-between; z-index: 55; }
-.bar-grupo { display: flex; gap: 4px; }
+/* Barras de Status Atualizadas */
+.status-bars {
+    position: absolute;
+    bottom: 85px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 360px;
+    display: none;
+    justify-content: space-between;
+    z-index: 55;
+}
+.bar-grupo { display: flex; gap: 3px; }
 .icone-hud { width: 14px; height: 14px; display: inline-block; box-shadow: 1px 1px 0 #000; }
 .v-coracao { background: #ff2222; border-radius: 50% 50% 0 0; position: relative; }
-.v-coracao::before { content:''; position:absolute; bottom:-5px; left:0; width:14px; height:7px; background:#ff2222; border-radius: 0 0 50% 50%; }
-.v-fome { background: #a0522d; border-radius: 4px 10px 4px 4px; }
-.icone-vazio { background: #333 !important; }
-
-/* Painel Informativo de Bioma e Camada */
-#biomaInfo { position: absolute; top: 15px; left: 15px; color: #fff; background: rgba(0,0,0,0.6); padding: 10px; border: 2px solid #555; font-family: monospace; font-size: 14px; z-index: 55; pointer-events: none;}
+.v-coracao::before { content:''; position:absolute; bottom:-4px; left:0; width:14px; height:6px; background:#ff2222; border-radius: 0 0 50% 50%; }
+.v-fome { background: #8b5a2b; border-radius: 3px 8px 3px 3px; }
+.icone-vazio { background: #222 !important; border-radius: 2px; border: 1px solid #444; }
 
 /* Hotbar */
-.hotbar-container { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); background: rgba(40,40,40,0.85); border: 4px solid #444; display: flex; padding: 3px; z-index: 55; }
-.hotbar-slot { width: 46px; height: 46px; border: 2px solid #222; margin: 0 2px; display: flex; justify-content: center; align-items: center; background: rgba(0,0,0,0.4); }
-.hotbar-slot.selecionado { border: 4px solid #ffffff; box-shadow: 0 0 5px #fff; }
-.slot-icone { width: 30px; height: 30px; border-radius: 4px; position: relative; }
-.slot-grama { background: #2c9e2c; }
-.slot-areia { background: #e0cd83; }
-.slot-folha-escura { background: #1a3c1a; }
-.slot-pedra { background: #7a7a7a; }
-.slot-picareta { background: #555; border-bottom: 4px solid #8b5a2b; }
-.slot-fornalha { background: #444; border: 2px dashed #999; }
-.slot-esmeralda { background: #10cc50; transform: rotate(45deg); width: 20px; height: 20px; }
-.slot-qtd { position: absolute; bottom: -2px; right: 1px; color: white; font-size: 11px; font-weight: bold; text-shadow: 1px 1px 0 #000; }
+.hotbar-container {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(30,30,30,0.85);
+    border: 4px solid #444;
+    display: flex;
+    padding: 3px;
+    z-index: 55;
+}
+.hotbar-slot {
+    width: 48px;
+    height: 48px;
+    border: 2px solid #111;
+    margin: 0 2px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,0.5);
+}
+.hotbar-slot.selecionado { border: 4px solid #fff; box-shadow: 0 0 4px #fff; }
+.slot-icone { width: 32px; height: 32px; image-rendering: pixelated; }
 
-/* ===================================== */
-/* NOVOS BOTÕES DE AÇÃO (MOBILE / PC)   */
-/* ===================================== */
+/* ========================= */
+/* NOVOS BOTÕES DE INTERAÇÃO */
+/* ========================= */
 .mobile-controls { display: none; position: absolute; inset: 0; pointer-events: none; z-index: 56; }
-.joystick-area { position: absolute; bottom: 30px; left: 30px; width: 110px; height: 110px; background: rgba(255,255,255,0.15); border: 3px solid rgba(255,255,255,0.4); border-radius: 50%; pointer-events: auto; }
-.joystick-pino { position: absolute; top: 32px; left: 32px; width: 42px; height: 42px; background: rgba(255,255,255,0.6); border-radius: 50%; }
+.joystick-area { position: absolute; bottom: 30px; left: 30px; width: 110px; height: 110px; background: rgba(255,255,255,0.1); border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; pointer-events: auto; }
+.joystick-pino { position: absolute; top: 35px; left: 35px; width: 40px; height: 40px; background: rgba(255,255,255,0.5); border-radius: 50%; }
 
-.botoes-mobile-acao { position: absolute; bottom: 25px; right: 25px; display: flex; flex-direction: column; gap: 12px; pointer-events: auto; }
-.btn-mobile-round { width: 65px; height: 65px; background: rgba(0,0,0,0.6); border: 3px solid rgba(255,255,255,0.6); border-radius: 50%; color: white; font-weight: bold; display: flex; justify-content: center; align-items: center; font-size: 12px; text-shadow: 1px 1px 0 #000; cursor: pointer; }
-.btn-bater { background: rgba(180, 40, 40, 0.6) !important; font-size: 20px !important; }
+/* Painel Direita: Pular, Quebrar, Colocar, Bater */
+.botoes-mobile-acao { position: absolute; bottom: 25px; right: 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; pointer-events: auto; }
+.btn-mobile-round {
+    width: 60px; height: 60px; background: rgba(0,0,0,0.5); border: 3px solid rgba(255,255,255,0.4); border-radius: 50%;
+    color: white; font-weight: bold; font-size: 11px; display: flex; justify-content: center; align-items: center; text-align: center;
+}
+.btn-mobile-round:active { background: rgba(255,255,255,0.4); }
+.btn-bater { background: rgba(139,0,0,0.6); border-color: #ff4444; font-size: 18px; } /* Ícone de espada ou soco */
 
-/* Interfaces do Inventário e Fornalha */
-#inventoryScreen, #furnaceScreen, #tradeScreen { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 70; justify-content: center; align-items: center; color: white;}
-.inventory-box { background: #4e4e4e; border: 4px solid #2d2d2d; padding: 20px; width: 400px; text-align: center; }
-.grid-inventario { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 15px 0; }
-.trade-row { display: flex; justify-content: space-around; align-items: center; margin: 15px 0; background: #333; padding: 10px; border: 2px solid #555; }
+/* ========================= */
+/* TELA DO INVENTÁRIO        */
+/* ========================= */
+#inventoryScreen { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 70; justify-content: center; align-items: center; }
+.inventory-box { background: #9e9e9e; border: 4px solid #2c2c2c; padding: 15px; width: 450px; box-shadow: inset -3px -3px 0 #555, inset 3px 3px 0 #fff; }
+.inventory-titulo { font-size: 16px; font-weight: bold; margin-bottom: 12px; color: #222; }
+.grid-inventario { display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; margin-bottom: 15px; }
+.grid-inventario .hotbar-slot { width: 42px; height: 42px; background: #8b8b8b; border: 2px solid #3c3c3c; cursor: pointer; }
+.painel-trocas { border-top: 2px solid #555; padding-top: 10px; margin-top: 10px; display: none; color: #111; }
 </style>
 </head>
 <body>
 
 <div id="loadingScreen">
     <div class="loadingTitle">MINECRAFT</div>
-    <div class="loadingSubtitle">Aurora Edition</div>
+    <div class="loadingSubtitle">Life with an Environment</div>
     <div class="loadingBar"><div class="loadingFill" id="loadingFill"></div></div>
-    <div class="loadingText" id="loadingText">Carregando... 0%</div>
+    <div class="loadingText" id="loadingText">Preparando novos biomas... 0%</div>
 </div>
 
 <div id="gameLoadingScreen">
-    <div class="loadingTitle" style="font-size: 45px;">Gerando Ambiente...</div>
-    <div class="loadingBar"><div class="loadingFill" id="gameLoadingFill" style="background: dodgerblue;"></div></div>
-    <div class="loadingText" id="gameLoadingText" style="font-style: italic; color: #ddd;">"Populando ecossistema com biomas..."</div>
+    <div class="loadingTitle" style="font-size: 40px;">Construindo Ecossistema...</div>
+    <div class="loadingBar"><div class="loadingFill" id="gameLoadingFill" style="background: #ffaa00;"></div></div>
+    <div class="loadingText" id="gameLoadingText" style="color: #ccc;">"Procurando minérios nas profundezas..."</div>
 </div>
 
 <div id="mainMenu">
     <div class="background"></div>
     <div class="overlay"></div>
     <div class="menu">
-        <div class="minecraft">MINECRAFT</div>
-        <div class="subtitulo-life">Life with an Environment</div>
-        <div class="aurora"><span class="cubo"></span>AURORA EDITION</div>
+        <div class="minecraft">
+            MINECRAFT
+            <span class="splash-text">Life with an Environment!</span>
+        </div>
+        <div class="aurora">AURORA ENGINE v2.0</div>
         <button class="btn" onclick="abrirModalJogar()">Jogar</button>
-        <button class="btn" onclick="alert('Configurações da Engine Carregadas.')">Configurações</button>
+        <button class="btn" onclick="alert('Configurações da nova engine carregadas!')">Configurações</button>
     </div>
-    <button class="criarConta" onclick="alert('Conta Conectada como Convidado local.')">Conta Aurora</button>
-    <div class="versao">v1.4 - Mega Atualização</div>
 </div>
 
 <div class="modal-jogar" id="modalJogar">
     <div class="conteudo-modal">
         <div class="campo-grupo">
-            <label>Nome do Ambiente:</label>
-            <input type="text" id="nomeMundo" value="Mundo Sobrevivência Real">
+            <label style="font-weight:bold; display:block; margin-bottom:5px;">Nome do Mundo:</label>
+            <input type="text" id="nomeMundo" value="Mundo Eco-Natureza">
         </div>
         <div class="campo-grupo">
-            <label>Modo de Jogo:</label>
+            <label style="font-weight:bold;">Modo de Jogo:</label>
             <div class="modo-opcoes">
                 <button class="modo-btn" id="btn-criativo" onclick="selecionarModo('Criativo')">Criativo</button>
                 <button class="modo-btn selecionado" id="btn-sobrevivencia" onclick="selecionarModo('Sobrevivência')">Sobrevivência</button>
             </div>
         </div>
-        <div class="modal-footer">
-            <button class="btn" style="width:45%; margin:0; padding:10px; font-size:16px;" onclick="fecharModalJogar()">Voltar</button>
-            <button class="btn" style="width:45%; margin:0; padding:10px; font-size:16px; background:linear-gradient(#63d963,#2c9e2c);" onclick="iniciarCarregamentoMundo()">Criar Mundo</button>
+        <div style="display:flex; justify-content:space-between; margin-top:20px;">
+            <button class="btn" style="width:45%; padding:10px; font-size:16px; margin:0;" onclick="fecharModalJogar()">Voltar</button>
+            <button class="btn" style="width:45%; padding:10px; font-size:16px; margin:0; background:#2e7d32;" onclick="iniciarCarregamentoMundo()">Criar</button>
         </div>
     </div>
 </div>
 
 <div id="gameContainer">
     <div class="crosshair"></div>
-    <button class="btn-sair-jogo" onclick="sairDoJogo()">Menu</button>
+    <button class="btn-sair-jogo" onclick="sairDoJogo()">Sair</button>
     <button class="btn-inventario-toggle" onclick="abrirInventario()">Inventário</button>
-
-    <div id="biomaInfo">Bioma: Calculando...<br>Camada Y: 0 (Superfície)</div>
 
     <div class="status-bars" id="hudStatus">
         <div class="bar-grupo" id="barCoraçoes"></div>
         <div class="bar-grupo" id="barFome"></div>
     </div>
 
-    <div class="hotbar-container">
-        <div class="hotbar-slot selecionado" id="slot-0" onclick="selecionarSlot(0)"><div class="slot-icone slot-grama"></div></div>
-        <div class="hotbar-slot" id="slot-1" onclick="selecionarSlot(1)"><div class="slot-icone slot-areia"></div></div>
-        <div class="hotbar-slot" id="slot-2" onclick="selecionarSlot(2)"><div class="slot-icone slot-pedra"></div></div>
-        <div class="hotbar-slot" id="slot-3" onclick="selecionarSlot(3)"><div class="slot-icone slot-picareta"></div></div>
-        <div class="hotbar-slot" id="slot-4" onclick="selecionarSlot(4)"><div class="slot-icone slot-fornalha"></div></div>
-        <div class="hotbar-slot" id="slot-5" onclick="selecionarSlot(5)"><div class="slot-icone slot-esmeralda"><span class="slot-qtd" id="txtEsmeraldas">5</span></div></div>
-        <div class="hotbar-slot" id="slot-6" onclick="selecionarSlot(6)"><div style="color:orange; font-size:10px; font-weight:bold;">Ferro B.</div></div>
-        <div class="hotbar-slot" id="slot-7" onclick="selecionarSlot(7)"><div style="color:cyan; font-size:10px; font-weight:bold;">Carvão</div></div>
-        <div class="hotbar-slot" id="slot-8" onclick="selecionarSlot(8)"><div style="color:magenta; font-size:11px; font-weight:bold;">Vila</div></div>
-    </div>
+    <div class="hotbar-container" id="hotbarUI"></div>
 
-    <div class="mobile-controls" id="mobileHud" style="display: block;">
-        <div class="joystick-area" id="joyArea"><div class="joystick-pino" id="joyPino"></div></div>
-        
+    <div class="mobile-controls" id="mobileHud">
+        <div class="joystick-area" id="joyArea">
+            <div class="joystick-pino" id="joyPino"></div>
+        </div>
         <div class="botoes-mobile-acao">
-            <div class="btn-mobile-round btn-bater" onclick="executarAcaoBater()">⚔️</div>
-            <div class="btn-mobile-round" onclick="executarAcaoQuebrar()">QUEBRAR</div>
-            <div class="btn-mobile-round" onclick="executarAcaoColocar()">COLOCAR</div>
+            <div class="btn-mobile-round" id="btnColocar">COLOCAR</div>
+            <div class="btn-mobile-round" id="btnQuebrar">QUEBRAR</div>
             <div class="btn-mobile-round" id="btnPular">PULAR</div>
+            <div class="btn-mobile-round btn-bater" id="btnBater">⚔️</div>
         </div>
     </div>
 </div>
 
 <div id="inventoryScreen" onclick="fecharInventario()">
     <div class="inventory-box" onclick="event.stopPropagation()">
-        <h3>Inventário de Recursos</h3>
-        <div class="grid-inventario" id="invGrid">
+        <div class="inventory-titulo" id="invTitulo">Inventário</div>
+        <div class="grid-inventario" id="invGrid"></div>
+        
+        <div class="painel-trocas" id="painelTrocas">
+            <h4 style="margin-bottom:5px;">Trocas com o Aldeão:</h4>
+            <div id="conteudoTroca" style="background:#bbb; padding:8px; font-weight:bold; display:flex; justify-content:space-between; align-items:center;">
+                <span>Vila Trancada</span>
             </div>
-        <button class="btn" style="width:100%; padding:10px; font-size:16px;" onclick="fecharInventario()">Fechar</button>
+        </div>
+        <button class="btn" style="width:100%; padding:10px; font-size:16px; margin-top:10px;" onclick="fecharInventario()">Fechar</button>
     </div>
 </div>
-
-<div id="furnaceScreen" onclick="document.getElementById('furnaceScreen').style.display='none'">
-    <div class="inventory-box" onclick="event.stopPropagation()" style="border-color: orange;">
-        <h3>🔥 Fornalha de Fundição</h3>
-        <p>Esquente seus minérios brutos utilizando Carvão!</p>
-        <div style="margin: 20px 0; background:#222; padding:15px; border-radius:5px;">
-            <div>Ferro Bruto: <span id="fnFerro">0</span> | Cobre Bruto: <span id="fnCobre">0</span></div>
-            <div style="margin-top:10px; color:yellow;">Carvão Disponível: <span id="fnCarvao">0</span></div>
-        </div>
-        <button class="btn" style="width:100%; padding:10px; font-size:16px; background:green;" onclick="fundirMinerios()">Fundir Metais (Transformar em Barra)</button>
-    </div>
-</div>
-
-<div id="tradeScreen" onclick="document.getElementById('tradeScreen').style.display='none'">
-    <div class="inventory-box" onclick="event.stopPropagation()" style="border-color: #10cc50;">
-        <h3>👨‍🌾 Aldeão Mercador (Vila)</h3>
-        <p>Troque suas Esmeraldas por suprimentos e ferramentas premium!</p>
-        <div class="trade-row">
-            <div>3 Esmeraldas 💎</div>
-            <div>➔</div>
-            <button class="btn" style="width:auto; padding:5px 10px; font-size:14px; margin:0;" onclick="comprarItem('comida')">Comprar Pão 🍞</button>
-        </div>
-        <div class="trade-row">
-            <div>5 Esmeraldas 💎</div>
-            <div>➔</div>
-            <button class="btn" style="width:auto; padding:5px 10px; font-size:14px; margin:0;" onclick="comprarItem('picareta')">Picareta de Pedra ⛏️</button>
-        </div>
-        <button class="btn" style="width:100%; padding:10px; font-size:16px;" onclick="document.getElementById('tradeScreen').style.display='none'">Fechar Trocas</button>
-    </div>
-</div>
-
 <script>
-// --- Carregamento e Telas do Menu ---
+// --- Controle de Telas e Carregamento do Menu Principal ---
 let progresso = 0;
 let barra = document.getElementById("loadingFill");
 let texto = document.getElementById("loadingText");
 let carregamento = setInterval(() => {
-    progresso += 5;
+    progresso += 4;
     barra.style.width = progresso + "%";
-    texto.innerHTML = "Carregando... " + progresso + "%";
+    texto.innerHTML = "Carregando novos biomas... " + progresso + "%";
     if(progresso >= 100){
         clearInterval(carregamento);
         setTimeout(()=>{
@@ -263,6 +279,7 @@ let carregamento = setInterval(() => {
 let modoMundo = "Sobrevivência";
 function abrirModalJogar() { document.getElementById("modalJogar").style.display = "flex"; }
 function fecharModalJogar() { document.getElementById("modalJogar").style.display = "none"; }
+
 function selecionarModo(modo) {
     modoMundo = modo;
     document.getElementById("btn-criativo").className = "modo-btn";
@@ -280,321 +297,876 @@ function iniciarCarregamentoMundo() {
     
     let gameProgresso = 0;
     let jogoCarregado = setInterval(() => {
-        gameProgresso += 10;
+        gameProgresso += 5;
         gameBar.style.width = gameProgresso + "%";
         if(gameProgresso >= 100){
             clearInterval(jogoCarregado);
             setTimeout(() => {
                 gameLoadingScreen.style.display = "none";
-                inicializarMundoMinecraft3D();
+                inicializarMundoMinecraft3D(modoMundo);
             }, 200);
         }
-    }, 30); 
+    }, 20); 
 }
 
-// =========================================================================
-// CORE ENGINE: MUNDO PROCEDURAL, BIOMAS, CAVERNAS E INTERAÇÕES 3D (THREE.JS)
-// =========================================================================
+// ==========================================
+// VARIÁVEIS GLOBAIS E ENGINE 3D
+// ==========================================
 let cena, camera, renderizador;
 let jogandoAtivo = false;
 let chaves = {};
 let blocosCarregados = {};
-let listaMobs = [];
+let estruturasGeradas = {}; 
+let entidades = []; // Mobs e Villagers
 let anguloHorizontal = 0, anguloVertical = 0;
 let slotSelecionadoIndex = 0;
+const DISTANCIA_RENDER = 10;
 
-// Economia e Mineração da Atualização
-let inventarioMat = { esmeraldas: 5, ferroBruto: 0, cobreBruto: 0, carvao: 12, ferroBarras: 0, picaretaPedra: true };
-let fomeAtual = 10;
-let clockFome = 0;
+// Configurações Físicas do Jogador
 let velocidadeY = 0;
+const GRAVIDADE = -0.012;
+const FORCA_PULO = 0.22;
 let noChao = false;
 
-function desenharStatusHUD() {
-    let containerCoracoes = document.getElementById("barCoraçoes");
-    let containerFome = document.getElementById("barFome");
-    containerCoracoes.innerHTML = ""; containerFome.innerHTML = "";
-    for(let i=0; i<10; i++) containerCoracoes.innerHTML += `<span class="icone-hud v-coracao"></span>`;
-    for(let i=0; i<10; i++) {
-        let classe = (i < fomeAtual) ? "v-fome" : "icone-vazio";
-        containerFome.innerHTML += `<span class="icone-hud ${classe}"></span>`;
-    }
-    document.getElementById("txtEsmeraldas").innerText = inventarioMat.esmeraldas;
-}
+// Atributos de Sobrevivência
+let vidaMaxima = 20; // 10 Corações inteiros = 20 de HP
+let vidaAtual = 20;
+let fomeMaxima = 20; // 10 Coxinhas inteiras = 20 de Fome
+let fomeAtual = 20;
+let clockFome = 0;
+let clockDanoCacto = 0;
 
-function selecionarSlot(index) {
-    document.querySelectorAll('.hotbar-slot').forEach(s => s.classList.remove('selecionado'));
-    document.getElementById(`slot-${index}`).classList.add('selecionado');
-    slotSelecionadoIndex = index;
+// Registro de IDs e Cores dos Blocos e Itens (Para as texturas procedurais)
+const BLOCOS = {
+    AR: 0, GRAMA: 1, TERRA: 2, PEDRA: 3, AREIA: 4, CACTO: 5,
+    PINHEIRO_TRONCO: 6, PINHEIRO_FOLHA: 7, PINHEIRO_ESCURO_TRONCO: 8, PINHEIRO_ESCURO_FOLHA: 9,
+    FERRO: 10, COBRE: 11, CARVAO: 12, ESMERALDA: 13, TABUA: 14, FORNALHA: 15
+};
+
+// Inventário do jogador (Quantidade de itens acumulados)
+let inventarioSlots = Array(27).fill(null).map((_, i) => {
+    if(i === 0) return { id: BLOCOS.TABUA, qtd: 1, tipo: 'picareta_pedra' }; // Já começa com picareta para minerar
+    if(i === 1) return { id: BLOCOS.GRAMA, qtd: 64 };
+    if(i === 2) return { id: BLOCOS.FORNALHA, qtd: 1 };
+    return null;
+});
+
+let hotbarSlots = [BLOCOS.GRAMA, BLOCOS.AREIA, BLOCOS.PINHEIRO_TRONCO, BLOCOS.PINHEIRO_ESCURO_TRONCO, BLOCOS.PEDRA, BLOCOS.FORNALHA, 0, 0, 0];
+
+// ==========================================
+// GERADOR DE TEXTURAS PROCEDURAIS (PIXEL ART)
+// ==========================================
+function criarMaterialCustomizado(tipo) {
+    let canvasTex = document.createElement('canvas'); canvasTex.width = 16; canvasTex.height = 16;
+    let ctx = canvasTex.getContext('2d');
     
-    if(index === 4) { // Abriu Fornalha
-        document.getElementById("fnFerro").innerText = inventarioMat.ferroBruto;
-        document.getElementById("fnCobre").innerText = inventarioMat.cobreBruto;
-        document.getElementById("fnCarvao").innerText = inventarioMat.carvao;
-        document.getElementById("furnaceScreen").style.display = "flex";
-    }
-    if(index === 8) { // Simulador de aproximação da vila/aldeão
-        document.getElementById("tradeScreen").style.display = "flex";
-    }
-}
-
-function abrirInventario() {
-    let grid = document.getElementById("invGrid");
-    grid.innerHTML = `
-        <div style='background:#333; padding:5px;'>💎 Esmeraldas: ${inventarioMat.esmeraldas}</div>
-        <div style='background:#333; padding:5px;'>🔸 Ferro Bruto: ${inventarioMat.ferroBruto}</div>
-        <div style='background:#333; padding:5px;'>🔹 Cobre Bruto: ${inventarioMat.cobreBruto}</div>
-        <div style='background:#333; padding:5px;'>⚫ Carvão: ${inventarioMat.carvao}</div>
-        <div style='background:#333; padding:5px;'>🔩 Barras Ferro: ${inventarioMat.ferroBarras}</div>
-    `;
-    document.getElementById("inventoryScreen").style.display = "flex";
-}
-function fecharInventario() { document.getElementById("inventoryScreen").style.display = "none"; }
-
-// Determinação matemática procedural de Bioma baseado no mapa
-function obterDadosBioma(x, z) {
-    let valorRuido = Math.sin(x * 0.05) * Math.cos(z * 0.05);
-    if (valorRuido < -0.2) {
-        return { nome: "Deserto", corGrama: 0xe0cd83, relevo: 1.5 };
-    } else if (valorRuido > 0.25) {
-        return { nome: "Floresta Pinheiro Escuro", corGrama: 0x5a4d36, relevo: 5.0 };
-    } else {
-        return { nome: "Planície", corGrama: 0x55cc44, relevo: 2.5 };
-    }
-}
-
-function inicializarMundoMinecraft3D() {
-    document.getElementById("gameContainer").style.display = "block";
-    let hudStatus = document.getElementById("hudStatus");
-    hudStatus.style.display = (modoMundo === "Sobrevivência") ? "flex" : "none";
-    desenharStatusHUD();
-
-    cena = new THREE.Scene(); cena.background = new THREE.Color(0x78a7ff);
-    cena.fog = new THREE.FogExp2(0x78a7ff, 0.05);
-
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 500);
-    camera.position.set(0, 15, 0);
-
-    renderizador = new THREE.WebGLRenderer({ antialias: false });
-    renderizador.setSize(window.innerWidth, window.innerHeight);
-    document.getElementById("gameContainer").appendChild(renderizador.domElement);
-
-    let luz = new THREE.AmbientLight(0xffffff, 0.9); cena.add(luz);
-
-    window.addEventListener("resize", onWindowResize);
-    configurarControlesAcao();
-
-    jogandoAtivo = true;
-    loopMinecraft();
-}
-
-// Geração Procedural Completa com Cavernas, Vilas, Cabanas e Minérios (99% de Chance)
-function atualizarChunksInfinitos() {
-    let pX = Math.floor(camera.position.x);
-    let pZ = Math.floor(camera.position.z);
-    let geo = new THREE.BoxGeometry(1, 1, 1);
-
-    let biomaInfo = obterDadosBioma(pX, pZ);
-    let descCamada = (camera.position.y < 3) ? "Caverna Subterrânea" : "Superfície";
-    document.getElementById("biomaInfo").innerHTML = `Bioma: ${biomaInfo.nome}<br>Camada Y: ${Math.floor(camera.position.y)} (${descCamada})`;
-
-    // Verificação de Dano do Cacto no Deserto
-    if(biomaInfo.nome === "Deserto" && modoMundo === "Sobrevivência") {
-        if(Math.floor(clockFome) % 180 === 0) { // Toma dano ritmado ao colidir
-            fomeAtual = Math.max(0, fomeAtual - 1);
-            desenharStatusHUD();
+    for(let x=0; x<16; x++) {
+        for(let y=0; y<16; y++) {
+            let ruido = Math.random() * 25;
+            if(tipo === 'grama_topo') ctx.fillStyle = `rgb(${45}, ${140 + ruido}, ${45})`;
+            else if(tipo === 'grama_lado') {
+                if(y < 5) ctx.fillStyle = `rgb(${45}, ${140 + ruido}, ${45})`;
+                else ctx.fillStyle = `rgb(${105 + ruido}, ${70 + ruido}, ${40})`;
+            }
+            else if(tipo === 'grama_marrom_topo') ctx.fillStyle = `rgb(${90 + ruido}, ${100 + ruido}, ${40})`;
+            else if(tipo === 'grama_marrom_lado') {
+                if(y < 5) ctx.fillStyle = `rgb(${90 + ruido}, ${100 + ruido}, ${40})`;
+                else ctx.fillStyle = `rgb(${85 + ruido}, ${55 + ruido}, ${30})`;
+            }
+            else if(tipo === 'terra') ctx.fillStyle = `rgb(${105 + ruido}, ${70 + ruido}, ${40})`;
+            else if(tipo === 'pedra') ctx.fillStyle = `rgb(${110 + ruido}, ${110 + ruido}, ${110 + ruido})`;
+            else if(tipo === 'areia') ctx.fillStyle = `rgb(${225 + ruido}, ${205 + ruido}, ${140 + ruido})`;
+            else if(tipo === 'cacto_topo') ctx.fillStyle = `rgb(${20}, ${100 + ruido}, ${20})`;
+            else if(tipo === 'cacto_lado') {
+                if(x % 4 === 0 || y % 4 === 0) ctx.fillStyle = `rgb(${10}, ${75 + ruido},Animation ${10})`;
+                else ctx.fillStyle = `rgb(${30}, ${125 + ruido}, ${30})`;
+            }
+            else if(tipo === 'tronco_topo') ctx.fillStyle = `rgb(${140}, ${110}, ${70})`;
+            else if(tipo === 'tronco_lado') ctx.fillStyle = `rgb(${90 + ruido}, ${65 + ruido}, ${40})`;
+            else if(tipo === 'tronco_escuro_lado') ctx.fillStyle = `rgb(${50 + ruido}, ${35 + ruido}, ${20})`;
+            else if(tipo === 'folha') ctx.fillStyle = `rgb(${30}, ${100 + ruido}, ${30})`;
+            else if(tipo === 'folha_escura') ctx.fillStyle = `rgb(${15}, ${55 + ruido}, ${15})`;
+            else if(tipo === 'ferro') {
+                ctx.fillStyle = (Math.random() > 0.8) ? `rgb(220,180,150)` : `rgb(${110+ruido},${110+ruido},${110+ruido})`;
+            }
+            else if(tipo === 'cobre') {
+                ctx.fillStyle = (Math.random() > 0.8) ? `rgb(210,100,60)` : `rgb(${110+ruido},${110+ruido},${110+ruido})`;
+            }
+            else if(tipo === 'carvao') {
+                ctx.fillStyle = (Math.random() > 0.8) ? `rgb(30,30,30)` : `rgb(${110+ruido},${110+ruido},${110+ruido})`;
+            }
+            else if(tipo === 'esmeralda') {
+                ctx.fillStyle = (Math.random() > 0.85) ? `rgb(0,240,100)` : `rgb(${110+ruido},${110+ruido},${110+ruido})`;
+            }
+            else if(tipo === 'fornalha_frente') {
+                if(x>2 && x<14 && y>4 && y<12) ctx.fillStyle = `rgb(40,40,40)`;
+                else ctx.fillStyle = `rgb(${90+ruido},${90+ruido},${90+ruido})`;
+            }
+            ctx.fillRect(x, y, 1, 1);
         }
     }
+    
+    let tex = new THREE.CanvasTexture(canvasTex);
+    tex.magFilter = THREE.NearestFilter; tex.minFilter = THREE.NearestFilter;
+    return new THREE.MeshLambertMaterial({ map: tex });
+}
 
-    for (let x = pX - 8; x < pX + 8; x++) {
-        for (let z = pZ - 8; z < pZ + 8; z++) {
-            let chave = `${x},${z}`;
-            if (!blocosCarregados[chave]) {
-                blocosCarregados[chave] = true;
-                let bio = obterDadosBioma(x, z);
-                let altMax = Math.floor(Math.sin(x*0.1)*bio.relevo + 6);
+// ==========================================
+// SISTEMA MATEMÁTICO DE RUIDO (BIOMAS E TERRENO)
+// ==========================================
+// Uma função pseudo-aleatória matemática simples para determinar biomas e relevos procedurais
+function pseudoRuido2D(x, z) {
+    let n = Math.sin(x * 12.9898 + z * 78.233) * 43758.5453123;
+    return n - Math.floor(n);
+}
 
-                // Gerando Blocos e Minérios (Caverna e Montanha com Alta Probabilidade)
-                for (let y = altMax - 8; y <= altMax; y++) {
-                    let corMat = bio.corGrama;
-                    let ehMinerio = false;
+function obterDadosMundo(x, z) {
+    // Escala suave para montanhas e biomas
+    let valorRelevo = Math.sin(x * 0.08) * Math.cos(z * 0.08) * 4 + Math.sin(x * 0.03) * 5;
+    let fatorBioma = Math.sin(x * 0.015) * Math.cos(z * 0.015); // Determina qual bioma está baseado no mapa global
+    
+    let bioma = "PLANICIE";
+    let altura = Math.floor(valorRelevo + 4);
 
-                    // Mecânica de Cavernas (Espaços vazios procedurais abaixo do Y=3)
-                    if (y < 4 && Math.sin(x*0.4)*Math.cos(z*0.4) > 0.3) {
-                        continue; // Abre espaço vazio de caverna
-                    }
+    if (fatorBioma < -0.25) {
+        bioma = "DESERTO";
+        altura = Math.floor(valorRelevo * 0.4 + 2); // Mais plano
+    } else if (fatorBioma > 0.2) {
+        bioma = "PINHEIRO_ESCURO";
+        altura = Math.floor(valorRelevo + 6); // Levemente mais montanhoso
+    }
 
-                    if (y === altMax) {
-                        if(bio.nome === "Deserto") corMat = 0xe0cd83;
-                    } else if (y < altMax - 2) {
-                        corMat = 0x7a7a7a; // Pedra basal
-                        // 99% Chance de minerios em montanhas altas ou profundezas de cavernas
-                        if (y < 3 || y > 8) {
-                            ehMinerio = true;
-                        }
-                    } else {
-                        corMat = 0x5c3c24; // Terra
-                    }
+    return { bioma: bioma, alturaMaxima: altura };
+}
+// ==========================================
+// RENDERIZADOR DE CUBOS E MATERIAIS
+// ==========================================
+let mats = {};
+function carregarTodosMateriais() {
+    mats.grama = [criarMaterialCustomizado('grama_lado'), criarMaterialCustomizado('grama_lado'), criarMaterialCustomizado('grama_topo'), criarMaterialCustomizado('terra'), criarMaterialCustomizado('grama_lado'), criarMaterialCustomizado('grama_lado')];
+    mats.grama_escura = [criarMaterialCustomizado('grama_marrom_lado'), criarMaterialCustomizado('grama_marrom_lado'), criarMaterialCustomizado('grama_marrom_topo'), criarMaterialCustomizado('terra'), criarMaterialCustomizado('grama_marrom_lado'), criarMaterialCustomizado('grama_marrom_lado')];
+    mats.terra = Array(6).fill(criarMaterialCustomizado('terra'));
+    mats.pedra = Array(6).fill(criarMaterialCustomizado('pedra'));
+    mats.areia = Array(6).fill(criarMaterialCustomizado('areia'));
+    mats.cacto = [criarMaterialCustomizado('cacto_lado'), criarMaterialCustomizado('cacto_lado'), criarMaterialCustomizado('cacto_topo'), criarMaterialCustomizado('cacto_topo'), criarMaterialCustomizado('cacto_lado'), criarMaterialCustomizado('cacto_lado')];
+    mats.pinheiro = [criarMaterialCustomizado('tronco_lado'), criarMaterialCustomizado('tronco_lado'), criarMaterialCustomizado('tronco_topo'), criarMaterialCustomizado('tronco_topo'), criarMaterialCustomizado('tronco_lado'), criarMaterialCustomizado('tronco_lado')];
+    mats.pinheiro_escuro = [criarMaterialCustomizado('tronco_escuro_lado'), criarMaterialCustomizado('tronco_escuro_lado'), criarMaterialCustomizado('tronco_topo'), criarMaterialCustomizado('tronco_topo'), criarMaterialCustomizado('tronco_escuro_lado'), criarMaterialCustomizado('tronco_escuro_lado')];
+    mats.folha = Array(6).fill(criarMaterialCustomizado('folha'));
+    mats.folha_escura = Array(6).fill(criarMaterialCustomizado('folha_escura'));
+    mats.ferro = Array(6).fill(criarMaterialCustomizado('ferro'));
+    mats.cobre = Array(6).fill(criarMaterialCustomizado('cobre'));
+    mats.carvao = Array(6).fill(criarMaterialCustomizado('carvao'));
+    mats.esmeralda = Array(6).fill(criarMaterialCustomizado('esmeralda'));
+    mats.tabua = Array(6).fill(criarMaterialCustomizado('tronco_topo'));
+    mats.fornalha = [criarMaterialCustomizado('pedra'), criarMaterialCustomizado('pedra'), criarMaterialCustomizado('pedra'), criarMaterialCustomizado('pedra'), criarMaterialCustomizado('fornalha_frente'), criarMaterialCustomizado('pedra')];
+}
 
-                    let mat = new THREE.MeshLambertMaterial({ color: corMat });
-                    if(ehMinerio) {
-                        let rand = Math.random();
-                        if(rand < 0.4) mat = new THREE.MeshLambertMaterial({ color: 0xffaa00 }); // Ferro
-                        else if(rand < 0.7) mat = new THREE.MeshLambertMaterial({ color: 0x00ffcc }); // Cobre
-                        else mat = new THREE.MeshLambertMaterial({ color: 0x111111 }); // Carvão
-                    }
+function obterMaterialPorID(id) {
+    if(id === BLOCOS.GRAMA) return mats.grama;
+    if(id === BLOCOS.TERRA) return mats.terra;
+    if(id === BLOCOS.PEDRA) return mats.pedra;
+    if(id === BLOCOS.AREIA) return mats.areia;
+    if(id === BLOCOS.CACTO) return mats.cacto;
+    if(id === BLOCOS.PINHEIRO_TRONCO) return mats.pinheiro;
+    if(id === BLOCOS.PINHEIRO_FOLHA) return mats.folha;
+    if(id === BLOCOS.PINHEIRO_ESCURO_TRONCO) return mats.pinheiro_escuro;
+    if(id === BLOCOS.PINHEIRO_ESCURO_FOLHA) return mats.folha_escura;
+    if(id === BLOCOS.FERRO) return mats.ferro;
+    if(id === BLOCOS.COBRE) return mats.cobre;
+    if(id === BLOCOS.CARVAO) return mats.carvao;
+    if(id === BLOCOS.ESMERALDA) return mats.esmeralda;
+    if(id === BLOCOS.TABUA) return mats.tabua;
+    if(id === BLOCOS.FORNALHA) return mats.fornalha;
+    return mats.pedra;
+}
 
-                    let bloco = new THREE.Mesh(geo, mat);
-                    bloco.position.set(x, y, z);
-                    cena.add(bloco);
-                }
+// ==========================================
+// SISTEMA DE GERAÇÃO PROCEDURAL (CHUNKS)
+// ==========================================
+function colocarBlocoNaCena(x, y, z, id) {
+    let geo = new THREE.BoxGeometry(1, 1, 1);
+    let mat = obterMaterialPorID(id);
+    
+    // Ajuste visual especial para bioma de Pinheiro Escuro usar grama marrom
+    if(id === BLOCOS.GRAMA) {
+        let dados = obterDadosMundo(x, z);
+        if(dados.bioma === "PINHEIRO_ESCURO") mat = mats.grama_escura;
+    }
 
-                // Spawna Elementos de Cenário e Estruturas (Cabanas / Vilas / Árvores)
-                if (Math.random() < 0.05) {
-                    if (bio.nome === "Planície") {
-                        // Árvore de Pinheiro Normal
-                        criarArvoreEstrutura(x, altMax+1, z, 0x8b5a2b, 0x2c9e2c);
-                    } else if (bio.nome === "Floresta Pinheiro Escuro") {
-                        criarArvoreEstrutura(x, altMax+1, z, 0x3d2314, 0x1a3c1a);
-                        if(Math.random() < 0.1) criarCabanaVila(x, altMax+1, z, "Cabana Escura");
-                    } else if (bio.nome === "Deserto") {
-                        // Cactos
-                        criarCacto(x, altMax+1, z);
-                    }
+    let mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(x, y, z);
+    mesh.name = `bloco_${x}_${y}_${z}`;
+    mesh.userData = { blocoID: id };
+    cena.add(mesh);
+    blocosCarregados[`${x},${y},${z}`] = mesh;
+}
+
+function atualizarMundoChunckInfinito() {
+    let pX = Math.floor(camera.position.x);
+    let pY = Math.floor(camera.position.y);
+    let pZ = Math.floor(camera.position.z);
+
+    for (let x = pX - DISTANCIA_RENDER; x < pX + DISTANCIA_RENDER; x++) {
+        for (let z = pZ - DISTANCIA_RENDER; z < pZ + DISTANCIA_RENDER; z++) {
+            
+            let dados = obterDadosMundo(x, z);
+            let altMax = dados.alturaMaxima;
+
+            // Gerar relevo vertical por coluna Y
+            for (let y = altMax - 15; y <= altMax; y++) {
+                let chave = `${x},${y},${z}`;
+                
+                if (!blocosCarregados[chave]) {
                     
-                    // Geração aleatória de vilas nas planícies
-                    if(bio.nome === "Planície" && Math.random() < 0.02) {
-                        criarCabanaVila(x, altMax+1, z, "Casa de Aldeão");
+                    // 1. SISTEMA DE CAVERNAS (99% de chance de túneis vazios se Y for baixo)
+                    let mathCaverna = Math.sin(x * 0.4) * Math.cos(y * 0.4) * Math.sin(z * 0.4);
+                    if (y < altMax - 2 && mathCaverna > 0.65) {
+                        blocosCarregados[chave] = "AR"; // Espaço vazio da caverna
+                        continue;
                     }
+
+                    // 2. DISTRIBUIÇÃO DE MINÉRIOS EM MONTANHAS E CAVERNAS (Altíssima probabilidade)
+                    let idFinal = BLOCOS.PEDRA;
+                    if (y < altMax - 1) {
+                        let r = pseudoRuido2D(x * 3, y * 5 + z);
+                        if (r > 0.96) idFinal = BLOCOS.CARVAO;
+                        else if (r > 0.93) idFinal = BLOCOS.FERRO;
+                        else if (r > 0.90) idFinal = BLOCOS.COBRE;
+                        else if (y < altMax - 8 && r > 0.88) idFinal = BLOCOS.ESMERALDA; // Esmeraldas nas profundezas
+                        else if (y < altMax - 3) idFinal = BLOCOS.PEDRA;
+                        else idFinal = BLOCOS.TERRA;
+                    } else {
+                        // Blocos superficiais baseados no bioma
+                        if (dados.bioma === "DESERTO") idFinal = BLOCOS.AREIA;
+                        else idFinal = BLOCOS.GRAMA;
+                    }
+
+                    colocarBlocoNaCena(x, y, z, idFinal);
+                }
+            }
+
+            // 3. ESTRUTURAS SUPERFICIAIS (Árvores, Vilas, Cabanas, Mobs)
+            let chaveEstrutura = `${x},${z}`;
+            if (!estruturasGeradas[chaveEstrutura]) {
+                estruturasGeradas[chaveEstrutura] = true;
+                let randomStruct = pseudoRuido2D(x * 7, z * 9);
+                
+                // Evita spawnar colado no centro inicial absoluto
+                if(Math.abs(x) > 3 || Math.abs(z) > 3) {
+                    gerarElementosSuperficie(x, altMax + 1, z, dados.bioma, randomStruct);
                 }
             }
         }
     }
 }
 
-function criarArvoreEstrutura(x, y, z, corTronco, corFolha) {
-    let geo = new THREE.BoxGeometry(1,1,1);
-    let matT = new THREE.MeshLambertMaterial({ color: corTronco });
-    let matF = new THREE.MeshLambertMaterial({ color: corFolha });
-    for(let h=0; h<4; h++) {
-        let t = new THREE.Mesh(geo, matT); t.position.set(x, y+h, z); cena.add(t);
-    }
-    let f = new THREE.Mesh(geo, matF); f.position.set(x, y+4, z); cena.add(f);
-}
-
-function criarCacto(x, y, z) {
-    let geo = new THREE.BoxGeometry(0.8, 2, 0.8);
-    let mat = new THREE.MeshLambertMaterial({ color: 0x22aa22 });
-    let cacto = new THREE.Mesh(geo, mat);
-    cacto.position.set(x, y+0.5, z);
-    cena.add(cacto);
-}
-
-function criarCabanaVila(x, y, z, tipo) {
-    let geo = new THREE.BoxGeometry(3, 2, 3);
-    let mat = new THREE.MeshLambertMaterial({ color: (tipo === "Cabana Escura") ? 0x3a2214 : 0xbf9b65 });
-    let casa = new THREE.Mesh(geo, mat);
-    casa.position.set(x, y+0.5, z);
-    cena.add(casa);
-}
-
-// Botões de Ação Dinâmicos da Atualização
-function executarAcaoQuebrar() {
-    let pX = Math.round(camera.position.x);
-    let pZ = Math.round(camera.position.z);
-    // Simula coleta inteligente baseada em chance de minério sob os pés
-    if(camera.position.y < 5) { 
-        let sorteio = Math.random();
-        if(sorteio < 0.3) {
-            inventarioMat.ferroBruto++; alert("Coletado: 1 Ferro Bruto! (Necessita Fornalha)");
-        } else if(sorteio < 0.6) {
-            inventarioMat.cobreBruto++; alert("Coletado: 1 Cobre Bruto!");
-        } else {
-            inventarioMat.carvao += 2; alert("Coletado: 2 Carvões!");
+// ==========================================
+// SCRIPT DE GERAÇÃO DE BIOMAS E VILAS
+// ==========================================
+function gerarElementosSuperficie(x, y, z, bioma, r) {
+    // Bioma: Deserto (Cactos perigosos)
+    if (bioma === "DESERTO") {
+        if (r > 0.96) { // Cacto de 2 a 3 blocos
+            colocarBlocoNaCena(x, y, z, BLOCOS.CACTO);
+            colocarBlocoNaCena(x, y + 1, z, BLOCOS.CACTO);
+            if(r > 0.98) colocarBlocoNaCena(x, y + 2, z, BLOCOS.CACTO);
         }
-    } else {
-        alert("Bloco básico quebrado.");
+    } 
+    // Bioma: Planície (Pinheiros Normais e Vilas Raras)
+    else if (bioma === "PLANICIE") {
+        if (r > 0.985) { // Árvore normal
+            construirArvoreHierarquia(x, y, z, BLOCOS.PINHEIRO_TRONCO, BLOCOS.PINHEIRO_FOLHA);
+        } 
+        else if (r < 0.015) { // 1.5% de Chance de gerar uma casa da Vila!
+            gerarCasaDaVila(x, y, z);
+        }
+        else if (r > 0.40 && r < 0.42) {
+            spawnarNovoMob(x, y, z, 'porco');
+        }
+        else if (r > 0.42 && r < 0.44) {
+            spawnarNovoMob(x, y, z, 'ovelha');
+        }
+    } 
+    // Bioma: Pinheiro Escuro (Pinheiro Gigante, Cabanas de Bruxa e Ursos)
+    else if (bioma === "PINHEIRO_ESCURO") {
+        if (r > 0.95) {
+            construirArvoreHierarquia(x, y, z, BLOCOS.PINHEIRO_ESCURO_TRONCO, BLOCOS.PINHEIRO_ESCURO_FOLHA);
+        }
+        else if (r < 0.008) { // Cabana abandonada nas matas escuras
+            gerarCabanaMisteriosa(x, y, z);
+        }
+        else if (r > 0.70 && r < 0.72) {
+            spawnarNovoMob(x, y, z, 'urso');
+        }
     }
-    desenharStatusHUD();
 }
 
-function executarAcaoColocar() {
-    let geo = new THREE.BoxGeometry(1, 1, 1);
-    let cor = (slotSelecionadoIndex === 1) ? 0xe0cd83 : 0x55cc44;
+function construirArvoreHierarquia(x, y, z, troncoID, folhaID) {
+    let alturaTronco = Math.floor(Math.random() * 3) + 4;
+    for(let i=0; i<alturaTronco; i++) colocarBlocoNaCena(x, y + i, z, troncoID);
+    
+    // Copa de folhas simples
+    let topoY = y + alturaTronco - 1;
+    for(let fx = -1; fx <= 1; fx++) {
+        for(let fz = -1; fz <= 1; fz++) {
+            colocarBlocoNaCena(x + fx, topoY, z + fz, folhaID);
+            colocarBlocoNaCena(x + fx, topoY + 1, z + fz, folhaID);
+        }
+    }
+    colocarBlocoNaCena(x, topoY + 2, z, folhaID);
+}
+
+function gerarCasaDaVila(cx, cy, cz) {
+    // Cria uma casinha de tábuas e pedras com um Aldeão dentro
+    for(let x = -2; x <= 2; x++) {
+        for(let z = -2; z <= 2; z++) {
+            for(let y = 0; y <= 3; y++) {
+                if(y === 0) colocarBlocoNaCena(cx + x, cy + y, cz + z, BLOCOS.PEDRA); // Fundação
+                else if(y === 3) colocarBlocoNaCena(cx + x, cy + y, cz + z, BLOCOS.TABUA); // Teto
+                else if(Math.abs(x) === 2 || Math.abs(z) === 2) {
+                    if(!(x === 0 && z === -2)) { // Deixa espaço para a porta aberta na frente
+                        colocarBlocoNaCena(cx + x, cy + y, cz + z, BLOCOS.TABUA);
+                    }
+                }
+            }
+        }
+    }
+    spawnarNovoMob(cx, cy + 1, cz, 'aldeao');
+}
+
+function gerarCabanaMisteriosa(cx, cy, cz) {
+    // Estrutura compacta de madeira escura
+    for(let x = -1; x <= 1; x++) {
+        for(let z = -1; z <= 1; z++) {
+            for(let y = 0; y <= 2; y++) {
+                if(y === 2) colocarBlocoNaCena(cx+x, cy+y, cz+z, BLOCOS.PINHEIRO_ESCURO_TRONCO);
+                else if(x !== 0 || z !== 0) colocarBlocoNaCena(cx+x, cy+y, cz+z, BLOCOS.PINHEIRO_ESCURO_TRONCO);
+            }
+        }
+    }
+}
+
+// ==========================================
+// ENTIDADES: INTELIGÊNCIA ARTIFICIAL DOS MOBS
+// ==========================================
+function spawnarNovoMob(x, y, z, tipo) {
+    let cor = 0xffffff;
+    let largura = 0.6, altura = 0.6;
+    
+    if(tipo === 'porco') { cor = 0xffaacc; largura = 0.5; altura = 0.5; }
+    else if(tipo === 'ovelha') { cor = 0xeeeeee; largura = 0.6; altura = 0.7; }
+    else if(tipo === 'urso') { cor = 0x5c4033; largura = 0.9; altura = 0.9; } // Urso pardo agressivo
+    else if(tipo === 'aldeao') { cor = 0xccaacc; largura = 0.5; altura = 1.1; }
+
+    let geo = new THREE.BoxGeometry(largura, altura, largura);
     let mat = new THREE.MeshLambertMaterial({ color: cor });
-    let bloco = new THREE.Mesh(geo, mat);
-    bloco.position.set(Math.round(camera.position.x), Math.round(camera.position.y - 1), Math.round(camera.position.z - 2));
-    cena.add(bloco);
+    let mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(x, y + altura/2, z);
+    cena.add(mesh);
+
+    entidades.push({
+        mesh: mesh,
+        tipo: tipo,
+        vida: (tipo === 'urso') ? 30 : 10,
+        timerMover: 0,
+        dirX: 0, dirZ: 0
+    });
 }
 
-function executarAcaoBater() {
-    alert("⚔️ Ataque deferido com sucesso no ar!");
-}
+function processarAIEntidades() {
+    entidades.forEach(mob => {
+        mob.timerMover--;
+        if(mob.timerMover <= 0) {
+            mob.timerMover = Math.floor(Math.random() * 100) + 50;
+            if(Math.random() > 0.4) {
+                mob.dirX = (Math.random() - 0.5) * 0.03;
+                mob.dirZ = (Math.random() - 0.5) * 0.03;
+            } else {
+                mob.dirX = 0; mob.dirZ = 0;
+            }
+        }
 
-function fundirMinerios() {
-    if(inventarioMat.carvao > 0 && inventarioMat.ferroBruto > 0) {
-        inventarioMat.carvao--;
-        inventarioMat.ferroBruto--;
-        inventarioMat.ferroBarras++;
-        alert("🔥 Sucesso! 1 Ferro Bruto purificado em Barra de Ferro!");
-        document.getElementById("furnaceScreen").style.display = "none";
-    } else {
-        alert("Recursos insuficientes na fornalha (requer Carvão + Ferro Bruto).");
+        // Movimentação básica
+        mob.mesh.position.x += mob.dirX;
+        mob.mesh.position.z += mob.dirZ;
+        
+        // Mantém o mob fixo de pé sobre as ondulações do terreno do bioma
+        let h = obterAlturaMontanha(mob.mesh.position.x, mob.mesh.position.z) + 0.5;
+        mob.mesh.position.y = h;
+    });
+}
+// ==========================================
+// INTERAÇÕES: QUEBRAR, COLOCAR E BATER (MECÂNICAS)
+// ==========================================
+function interagirMundo(acao) {
+    // Cria um vetor apontando para onde a mira (crosshair) está olhando centralizada
+    let raycaster = new THREE.Raycaster();
+    let centroTela = new THREE.Vector2(0, 0); 
+    raycaster.setFromCamera(centroTela, camera);
+
+    // Filtra apenas objetos Mesh na cena que sejam blocos ou mobs
+    let intersecoes = raycaster.intersectObjects(cena.children);
+
+    if (intersecoes.length > 0) {
+        let alvo = intersecoes[0];
+        
+        // Verifica se o alvo está a uma distância realista de alcance (até 5 metros)
+        if (alvo.distance > 5) return;
+
+        // SEÇÃO A: SE O ALVO FOR UM MOB OU ALDEÃO (MECÂNICA DE COMBATE / TROCA)
+        if (alvo.object.geometry && !alvo.object.name.startsWith("bloco_")) {
+            let mobEncontrado = entidades.find(e => e.mesh === alvo.object);
+            if (!mobEncontrado) return;
+
+            if (acao === 'bater') {
+                // Golpeia o Mob
+                mobEncontrado.vida -= 5;
+                mobEncontrado.mesh.position.y += 0.3; // Efeito visual de recuo por golpe
+                
+                if (mobEncontrado.vida <= 0) {
+                    // Drop de itens ao morrer
+                    if (mobEncontrado.tipo === 'porco') adicionarItemAoInventario(BLOCOS.TERRA, 1); // Carne fictícia/Suporte
+                    if (mobEncontrado.tipo === 'urso') adicionarItemAoInventario(BLOCOS.ESMERALDA, 1); // Recompensa valiosa
+                    
+                    cena.remove(mobEncontrado.mesh);
+                    entidades = entidades.filter(e => e.mesh !== mobEncontrado.mesh);
+                }
+                alert(`Você bateu em um ${mobEncontrado.tipo.toUpperCase()}! Vida restante: ${mobEncontrado.vida}`);
+            } 
+            else if (acao === 'colocar' && mobEncontrado.tipo === 'aldeao') {
+                // Se clicar com botão de colocar/interagir no Aldeão, abre o menu de trocas!
+                abrirMenuTrocaAldeao();
+            }
+            return;
+        }
+
+        // SEÇÃO B: SE O ALVO FOR UM BLOCO SÓLIDO
+        let meshBloco = alvo.object;
+        let p = meshBloco.position;
+        let idBloco = meshBloco.userData.blocoID;
+
+        if (acao === 'quebrar') {
+            // REGRA DOS MINÉRIOS: Ferro, Cobre e Carvão só dropam com Picareta de Pedra (slot 0) ou superior
+            let ferramentaAtual = inventarioSlots[0];
+            let possuiPicaretaAdequada = (ferramentaAtual && ferramentaAtual.tipo === 'picareta_pedra');
+
+            if (idBloco === BLOCOS.FERRO || idBloco === BLOCOS.COBRE || idBloco === BLOCOS.CARVAO) {
+                if (!possuiPicaretaAdequada) {
+                    alert("Este minério exige uma Picareta de Pedra ou superior para dropar o item!");
+                    // Remove o bloco visualmente mas não dá o drop
+                    removerBlocoDoMapa(p.x, p.y, p.z, meshBloco);
+                    return;
+                }
+            }
+
+            // Lógica de Drops customizados e quantitativos
+            if (idBloco === BLOCOS.ESMERALDA) {
+                // Drop especial pedido: 3 a 5 esmeraldas por bloco minerado!
+                let qtdDrop = Math.floor(Math.random() * 3) + 3; // Gera 3, 4 ou 5
+                adicionarItemAoInventario(BLOCOS.ESMERALDA, qtdDrop);
+                alert(`Minério Rico! Você coletou +${qtdDrop} Esmeraldas.`);
+            } else if (idBloco === BLOCOS.FERRO || idBloco === BLOCOS.COBRE) {
+                // Dropa em formato bruto (exige aquecimento posterior)
+                adicionarItemAoInventario(idBloco, 1, 'bruto');
+            } else if (idBloco !== BLOCOS.CACTO) {
+                // Blocos comuns dropam eles mesmos
+                adicionarItemAoInventario(idBloco, 1);
+            }
+
+            removerBlocoDoMapa(p.x, p.y, p.z, meshBloco);
+        } 
+        else if (acao === 'colocar') {
+            // Calcula a posição adjacente exata baseada na face do bloco clicado
+            let normal = alvo.face.normal;
+            let bx = p.x + normal.x;
+            let by = p.y + normal.y;
+            let bz = p.z + normal.z;
+
+            let blocoMaoID = hotbarSlots[slotSelecionadoIndex];
+            if (blocoMaoID > 0) {
+                colocarBlocoNaCena(bx, by, bz, blocoMaoID);
+            }
+        }
     }
 }
 
-function comprarItem(tipo) {
-    if(inventarioMat.esmeraldas >= 3) {
-        inventarioMat.esmeraldas -= 3;
-        if(tipo === 'comida') { fomeAtual = Math.min(10, fomeAtual + 3); alert("🍞 Pão consumido! Fome restaurada."); }
-        document.getElementById("tradeScreen").style.display = "none";
-        desenharStatusHUD();
+function removerBlocoDoMapa(x, y, z, mesh) {
+    cena.remove(mesh);
+    delete blocosCarregados[`${x},${y},${z}`];
+}
+
+function adicionarItemAoInventario(id, quantidade, status = 'normal') {
+    // Procura se o item já existe no inventário para somar no pack
+    let slotExistente = inventarioSlots.find(s => s && s.id === id && s.status === status && s.qtd < 64);
+    if (slotExistente) {
+        slotExistente.qtd += quantidade;
     } else {
-        alert("Você não possui Esmeraldas suficientes para negociar!");
+        let slotVazioIndex = inventarioSlots.findIndex(s => s === null);
+        if (slotVazioIndex !== -1) {
+            inventarioSlots[slotVazioIndex] = { id: id, qtd: quantidade, status: status };
+        }
+    }
+    atualizarGridsHUD();
+}
+
+// ==========================================
+// SISTEMA ECONÔMICO: ALDEÃO E TROCAS
+// ==========================================
+function abrirMenuTrocaAldeao() {
+    abrirInventario();
+    document.getElementById("invTitulo").innerText = "Mercado de Trocas do Aldeão";
+    let painel = document.getElementById("painelTrocas");
+    painel.style.display = "block";
+    
+    // Configura a oferta do Aldeão de forma interativa
+    document.getElementById("conteudoTroca").innerHTML = `
+        <span>OFERTA: 5 Esmeraldas 💰 por 1 Fornalha Nova 🧱</span>
+        <button class="btn" style="padding:5px 10px; font-size:12px; width:auto; margin:0; background:#ffaa00;" onclick="executarTrocaAldeaoComercio()">Trocar</button>
+    `;
+}
+
+function executarTrocaAldeaoComercio() {
+    let slotEsmeralda = inventarioSlots.find(s => s && s.id === BLOCOS.ESMERALDA);
+    if (slotEsmeralda && slotEsmeralda.qtd >= 5) {
+        slotEsmeralda.qtd -= 5;
+        if(slotEsmeralda.qtd <= 0) {
+            let idx = inventarioSlots.indexOf(slotEsmeralda);
+            inventarioSlots[idx] = null;
+        }
+        adicionarItemAoInventario(BLOCOS.FORNALHA, 1);
+        alert("Troca realizada com sucesso! Você comprou uma Fornalha.");
+        atualizarGridsHUD();
+        fecharInventario();
+    } else {
+        alert("Você não possui Esmeraldas suficientes (Mínimo: 5) para realizar esta troca!");
     }
 }
 
-// Configurações de inputs mobile/PC unificados
+// ==========================================
+// VERIFICAÇÃO FÍSICA DE PERIGO (CACTOS)
+// ==========================================
+function verificarDanoCactoEntorno() {
+    if (modoMundo === "Criativo") return;
+
+    let pX = Math.round(camera.position.x);
+    let pY = Math.floor(camera.position.y - 0.5);
+    let pZ = Math.round(camera.position.z);
+
+    // Checa se há um cacto na mesma posição ou colado nos lados do jogador
+    let posicoesChecagem = [
+        `${pX},${pY},${pZ}`,
+        `${pX+1},${pY},${pZ}`,
+        `${pX-1},${pY},${pZ}`,
+        `${pX},${pY},${pZ+1}`,
+        `${pX},${pY},${pZ-1}`
+    ];
+
+    let encostouNoCacto = posicoesChecagem.some(chave => {
+        let bloco = blocosCarregados[chave];
+        return (bloco && bloco.userData && bloco.userData.blocoID === BLOCOS.CACTO);
+    });
+
+    if (encostouNoCacto) {
+        clockDanoCacto++;
+        // Aplica o dano a cada 30 frames (Aprox. meio segundo) para dar cadência
+        if (clockDanoCacto >= 30) {
+            clockDanoCacto = 0;
+            vidaAtual -= 3; // Perde 1 coração e meio (Cada coração vale 2 pontos de vida)
+            desenharStatusHUD();
+            alert("Você levou dano de espinho do Cacto! (-1.5 Corações)");
+            
+            if (vidaAtual <= 0) {
+                alert("Você morreu no meio do deserto! Renascendo...");
+                vidaAtual = 20;
+                fomeAtual = 20;
+                camera.position.set(0, 10, 0); // Envia de volta para o ponto de spawn seguro
+                desenharStatusHUD();
+            }
+        }
+    }
+}
+// ==========================================
+// RENDERIZADORES DE RENDER E HUD (ATUALIZAÇÃO)
+// ==========================================
+function desenharStatusHUD() {
+    let containerCoracoes = document.getElementById("barCoraçoes");
+    let containerFome = document.getElementById("barFome");
+    if(!containerCoracoes || !containerFome) return;
+    
+    containerCoracoes.innerHTML = "";
+    containerFome.innerHTML = "";
+
+    // Renderiza a barra de vida (10 ícones baseados em 20 de HP máximo)
+    for(let i = 0; i < 10; i++) {
+        let classeCoracao = (vidaAtual > i * 2 + 1) ? "v-coracao" : ((vidaAtual > i * 2) ? "v-coracao icone-metade" : "icone-vazio");
+        containerCoracoes.innerHTML += `<span class="icone-hud ${classeCoracao}"></span>`;
+    }
+
+    // Renderiza a barra de fome (10 ícones baseados em 20 de Fome máxima)
+    for(let i = 0; i < 10; i++) {
+        let classeFome = (fomeAtual > i * 2) ? "v-fome" : "icone-vazio";
+        containerFome.innerHTML += `<span class="icone-hud ${classeFome}"></span>`;
+    }
+}
+
+function atualizarGridsHUD() {
+    let hotbarUI = document.getElementById("hotbarUI");
+    let invGrid = document.getElementById("invGrid");
+    if(!hotbarUI || !invGrid) return;
+
+    // Monta os 9 slots inferiores da Hotbar
+    hotbarUI.innerHTML = "";
+    for(let i = 0; i < 9; i++) {
+        let blocoID = hotbarSlots[i];
+        let slotSelecionado = (i === slotSelecionadoIndex) ? "selecionado" : "";
+        let iconeHTML = "";
+
+        if(blocoID === BLOCOS.GRAMA) iconeHTML = '<div class="slot-icone" style="background:#2c9e2c; border-bottom:12px solid #5c3c24;"></div>';
+        else if(blocoID === BLOCOS.AREIA) iconeHTML = '<div class="slot-icone" style="background:#e1cd8c;"></div>';
+        else if(blocoID === BLOCOS.PINHEIRO_TRONCO) iconeHTML = '<div class="slot-icone" style="background:#5c3c24; border:3px solid #8b5a2b;"></div>';
+        else if(blocoID === BLOCOS.PINHEIRO_ESCURO_TRONCO) iconeHTML = '<div class="slot-icone" style="background:#322314; border:3px solid #5c3c24;"></div>';
+        else if(blocoID === BLOCOS.PEDRA) iconeHTML = '<div class="slot-icone" style="background:#7a7a7a;"></div>';
+        else if(blocoID === BLOCOS.FORNALHA) iconeHTML = '<div class="slot-icone" style="background:#555; border:2px dashed #ff5500;"></div>';
+
+        hotbarUI.innerHTML += `
+            <div class="hotbar-slot ${slotSelecionado}" onclick="selecionarSlot(${i})">
+                ${iconeHTML}
+            </div>
+        `;
+    }
+
+    // Monta os 27 slots internos do Inventário (E)
+    invGrid.innerHTML = "";
+    inventarioSlots.forEach((slot, index) => {
+        let conteudoSlot = "";
+        if(slot) {
+            let nomeItem = (slot.status === 'bruto') ? "Bruto" : "";
+            conteudoSlot = `<div style="font-size:9px; color:#fff; font-weight:bold; text-align:center; padding-top:10px;">ID:${slot.id}\n(${slot.qtd}${nomeItem})</div>`;
+        }
+        invGrid.innerHTML += `<div class="hotbar-slot" onclick="gerenciarCliqueSlotInventario(${index})">${conteudoSlot}</div>`;
+    });
+}
+
+function selecionarSlot(index) {
+    slotSelecionadoIndex = index;
+    atualizarGridsHUD();
+}
+
+function gerenciarCliqueSlotInventario(index) {
+    let item = inventarioSlots[index];
+    if(item) {
+        // Vincula o item clicado diretamente à sua Hotbar ativa
+        hotbarSlots[slotSelecionadoIndex] = item.id;
+        alert(`Item movido para a sua Hotbar (Slot ${slotSelecionadoIndex + 1})!`);
+        atualizarGridsHUD();
+    }
+}
+
+function abrirInventario() { 
+    document.getElementById("inventoryScreen").style.display = "flex"; 
+    document.getElementById("invTitulo").innerText = "Inventário";
+    document.getElementById("painelTrocas").style.display = "none";
+}
+function fecharInventario() { document.getElementById("inventoryScreen").style.display = "none"; }
+
+// ==========================================
+// CONTROLES FÍSICOS E LOOP PRINCIPAL DA GAMEPLAY
+// ==========================================
 let joyX = 0, joyY = 0;
-function configurarControlesAcao() {
+let toqueArrastandoOlhar = false, touchStartX = 0, touchStartY = 0;
+
+function inicializarMundoMinecraft3D(modo) {
+    document.getElementById("gameContainer").style.display = "block";
+    
+    let hudStatus = document.getElementById("hudStatus");
+    if(modo === "Sobrevivência") {
+        hudStatus.style.display = "flex";
+        vidaAtual = 20;
+        fomeAtual = 20;
+    } else {
+        hudStatus.style.display = "none";
+    }
+
+    cena = new THREE.Scene(); 
+    cena.background = new THREE.Color(0x78a7ff);
+    cena.fog = new THREE.FogExp2(0x78a7ff, 0.05);
+
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    
+    // Altura calculada proceduralmente no ponto de spawn inicial (0,0)
+    let altInicial = obterDadosMundo(0, 0).alturaMaxima + 2.5;
+    camera.position.set(0, altInicial, 0);
+
+    renderizador = new THREE.WebGLRenderer({ antialias: false });
+    renderizador.setSize(window.innerWidth, window.innerHeight);
+    document.getElementById("gameContainer").appendChild(renderizador.domElement);
+
+    let luzAmbiente = new THREE.AmbientLight(0xffffff, 0.9); 
+    cena.add(luzAmbiente);
+
+    carregarTodosMateriais();
+    atualizarGridsHUD();
+    desenharStatusHUD();
+
+    // Ouvintes de Teclado (PC)
+    window.addEventListener("keydown", (e) => {
+        chaves[e.key.toLowerCase()] = true;
+        if(e.key.toLowerCase() === 'e') {
+            let inv = document.getElementById("inventoryScreen");
+            if(inv.style.display === "flex") fecharInventario(); else abrirInventario();
+        }
+        if(e.key >= '1' && e.key <= '9') selecionarSlot(parseInt(e.key) - 1);
+    });
+    window.addEventListener("keyup", (e) => chaves[e.key.toLowerCase()] = false);
+
+    // Detecção Automática de Dispositivos Touch / Mobile
+    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+        document.getElementById("mobileHud").style.display = "block";
+        configurarEventosMobile();
+    }
+
+    jogandoAtivo = true;
+    loopMinecraft();
+}
+
+function configurarEventosMobile() {
     let area = document.getElementById("joyArea");
     let pino = document.getElementById("joyPino");
     
-    area.addEventListener("touchstart", (e) => atualizarJoy(e));
-    area.addEventListener("touchmove", (e) => atualizarJoy(e));
+    area.addEventListener("touchstart", (e) => atualizarJoystick(e));
+    area.addEventListener("touchmove", (e) => atualizarJoystick(e));
     area.addEventListener("touchend", () => {
-        pino.style.top = "32px"; pino.style.left = "32px"; joyX = 0; joyY = 0;
+        pino.style.top = "35px"; pino.style.left = "35px";
+        joyX = 0; joyY = 0;
     });
 
+    // Mapeamento dos novos botões Mobile da Mega Atualização
     document.getElementById("btnPular").addEventListener("touchstart", () => chaves[" "] = true);
     document.getElementById("btnPular").addEventListener("touchend", () => chaves[" "] = false);
+    
+    document.getElementById("btnQuebrar").addEventListener("touchstart", () => interagirMundo('quebrar'));
+    document.getElementById("btnColocar").addEventListener("touchstart", () => interagirMundo('colocar'));
+    document.getElementById("btnBater").addEventListener("touchstart", () => interagirMundo('bater'));
 
-    // Arrasto de tela para olhar ao redor em 3D
-    let arrastando = false, sX = 0, sY = 0;
     window.addEventListener("touchstart", (e) => {
-        if(e.target.closest('.joystick-area') || e.target.closest('.btn-mobile-round') || e.target.id === "slot-0") return;
-        arrastando = true; sX = e.touches[0].clientX; sY = e.touches[0].clientY;
+        if(e.target.closest('#mobileHud') || e.target.closest('.btn-sair-jogo') || e.target.closest('.btn-inventario-toggle')) return;
+        toqueArrastandoOlhar = true;
+        touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY;
     });
     window.addEventListener("touchmove", (e) => {
-        if(!arrastando) return;
-        let dx = e.touches[0].clientX - sX; let dy = e.touches[0].clientY - sY;
-        anguloHorizontal -= dx * 0.008; anguloVertical = Math.max(-1.4, Math.min(1.4, anguloVertical - dy * 0.008));
-        sX = e.touches[0].clientX; sY = e.touches[0].clientY;
+        if(!toqueArrastandoOlhar) return;
+        let dx = e.touches[0].clientX - touchStartX;
+        let dy = e.touches[0].clientY - touchStartY;
+        anguloHorizontal -= dx * 0.006;
+        anguloVertical = Math.max(-Math.PI/2.3, Math.min(Math.PI/2.3, anguloVertical - dy * 0.006));
+        touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY;
     });
-    window.addEventListener("touchend", () => arrastando = false);
+    window.addEventListener("touchend", () => toqueArrastandoOlhar = false);
 }
 
-function atualizarJoy(e) {
+function atualizarJoystick(e) {
     let rect = document.getElementById("joyArea").getBoundingClientRect();
-    let tx = e.touches[0].clientX - (rect.left + 55);
-    let ty = e.touches[0].clientY - (rect.top + 55);
+    let touch = e.touches[0];
+    let tx = touch.clientX - (rect.left + rect.width/2);
+    let ty = touch.clientY - (rect.top + rect.height/2);
     let dist = Math.sqrt(tx*tx + ty*ty);
-    if(dist > 35) { tx *= 35/dist; ty *= 35/dist; }
-    document.getElementById("joyPino").style.left = (32 + tx) + "px";
-    document.getElementById("joyPino").style.top = (32 + ty) + "px";
-    joyX = tx / 35; joyY = -ty / 35;
+    let maxDist = 35;
+    if(dist > maxDist) { tx *= maxDist/dist; ty *= maxDist/dist; }
+    document.getElementById("joyPino").style.left = (35 + tx) + "px"; 
+    document.getElementById("joyPino").style.top = (35 + ty) + "px";
+    joyX = tx / maxDist; joyY = -ty / maxDist;
 }
 
-function gerenciarFisicaControles() {
-    let vel = 0.12;
-    let
+function gerenciarFisicaControlesEAmbiente() {
+    let velocidade = 0.11;
+
+    // Atualiza direção para onde a câmera está apontada
+    let direcao = new THREE.Vector3();
+    direcao.x = Math.sin(anguloHorizontal) * Math.cos(anguloVertical);
+    direcao.y = Math.sin(anguloVertical);
+    direcao.z = Math.cos(anguloHorizontal) * Math.cos(anguloVertical);
+    camera.lookAt(camera.position.clone().add(direcao));
+
+    let dirMov = new THREE.Vector3(Math.sin(anguloHorizontal), 0, Math.cos(anguloHorizontal)).normalize();
+    let dirLado = new THREE.Vector3(dirMov.z, 0, -dirMov.x);
+
+    // Controles por teclado físico
+    if (chaves["w"]) { camera.position.x += dirMov.x * velocidade; camera.position.z += dirMov.z * velocidade; }
+    if (chaves["s"]) { camera.position.x -= dirMov.x * velocidade; camera.position.z -= dirMov.z * velocidade; }
+    if (chaves["a"]) { camera.position.x += dirLado.x * velocidade; camera.position.z += dirLado.z * velocidade; }
+    if (chaves["d"]) { camera.position.x -= dirLado.x * velocidade; camera.position.z -= dirLado.z * velocidade; }
+
+    // Controles por Joystick Virtual Touch
+    if (joyX !== 0 || joyY !== 0) {
+        camera.position.x += (dirMov.x * joyY - dirLado.x * joyX) * velocidade;
+        camera.position.z += (dirMov.z * joyY - dirLado.z * joyX) * velocidade;
+    }
+
+    // Mecânica de Altura de Colisão e Chão Dinâmico por Bioma
+    let dadosChao = obterDadosMundo(camera.position.x, camera.position.z);
+    let alturaChaoAtual = dadosChao.alturaMaxima + 1.62; // Altura padrão dos olhos do steve
+
+    if (camera.position.y > alturaChaoAtual) {
+        velocidadeY += GRAVIDADE;
+        noChao = false;
+    } else {
+        velocidadeY = 0;
+        camera.position.y = alturaChaoAtual;
+        noChao = true;
+    }
+
+    if (chaves[" "] && noChao) {
+        velocidadeY = FORCA_PULO;
+        noChao = false;
+    }
+
+    camera.position.y += velocidadeY;
+
+    // ==========================================
+    // CONTROLE DE FOME ATIVA: EXATOS 10 MINUTOS
+    // ==========================================
+    if (modoMundo === "Sobrevivência") {
+        clockFome++;
+        // 60 frames por segundo * 60 segundos * 10 minutos = 360000 frames
+        if (clockFome >= 360000) { 
+            clockFome = 0;
+            if (fomeAtual > 0) {
+                fomeAtual -= 2; // Remove 1 coxa inteira de fome a cada 10 min
+                desenharStatusHUD();
+            }
+        }
+    }
+
+    // Roda a validação de dano por contato com cactos do deserto
+    verificarDanoCactoEntorno();
+}
+
+function loopMinecraft() {
+    if (!jogandoAtivo) return;
+    gerenciarFisicaControlesEAmbiente();
+    atualizarMundoChunckInfinito();
+    processarAIEntidades();
+    renderizador.render(cena, camera);
+    requestAnimationFrame(loopMinecraft);
+}
+
+function windowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderizador.setSize(window.innerWidth, window.innerHeight);
+}
+window.addEventListener("resize", windowResize);
+
+function sairDoJogo() {
+    jogandoAtivo = false;
+    document.getElementById("gameContainer").style.display = "none";
+    let domCanvas = renderizador.domElement;
+    if (domCanvas && domCanvas.parentNode) domCanvas.parentNode.removeChild(domCanvas);
+    blocosCarregados = {};
+    estruturasGeradas = {};
+    entidades = [];
+    document.getElementById("mainMenu").style.display = "block";
+}
+</script>
+</body>
+    </html>
