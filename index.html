@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Minecraft Aurora Edition v1.2</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -13,12 +13,14 @@
     padding:0;
     box-sizing:border-box;
     user-select: none;
+    -webkit-user-select: none;
 }
 
 body{
     overflow:hidden;
     font-family:Arial, sans-serif;
     background:#000;
+    touch-action: none;
 }
 
 /* ========================= */
@@ -46,342 +48,207 @@ body{
     font-size:70px;
     font-weight:900;
     color:white;
-    text-shadow:
-    3px 3px 0 #999,
-    6px 6px 0 #555,
-    9px 9px 15px rgba(0,0,0,.5);
+    text-shadow: 3px 3px 0 #999, 6px 6px 0 #555, 9px 9px 15px rgba(0,0,0,.5);
 }
 
-.loadingSubtitle{
-    color:white;
-    font-size:28px;
-    margin-top:10px;
-}
-
-.loadingBar{
-    width:420px;
-    max-width:90%;
-    height:30px;
-    margin-top:40px;
-    background:rgba(0,0,0,.3);
-    border:3px solid white;
-}
-
-.loadingFill{
-    height:100%;
-    width:0%;
-    background:limegreen;
-}
-
-.loadingText{
-    color:white;
-    font-size:24px;
-    margin-top:15px;
-    text-align: center;
-    max-width: 80%;
-    min-height: 60px;
-}
+.loadingSubtitle{ color:white; font-size:28px; margin-top:10px; }
+.loadingBar{ width:420px; max-width:90%; height:30px; margin-top:40px; background:rgba(0,0,0,.3); border:3px solid white; }
+.loadingFill{ height:100%; width:0%; background:limegreen; }
+.loadingText{ color:white; font-size:24px; margin-top:15px; text-align: center; max-width: 80%; min-height: 60px; }
 
 /* ========================= */
 /* MENU PRINCIPAL            */
 /* ========================= */
 
-#mainMenu{
-    display:none;
-    width:100vw;
-    height:100vh;
-}
-
-.background{
-    position:fixed;
-    inset:-25%;
-    background:url("https://images.unsplash.com/photo-1614294148960-9aa740632a87?w=1200") center/cover;
-    filter:blur(10px) brightness(.65);
-    animation:girar 45s linear infinite;
-}
-
-@keyframes girar{
-    from{ transform:rotate(0deg) scale(1.4); }
-    to{ transform:rotate(360deg) scale(1.4); }
-}
-
-.overlay{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.25);
-}
-
-.menu{
-    position:relative;
-    z-index:5;
-    height:100vh;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-}
-
-.minecraft{
-    font-size:80px;
-    font-weight:900;
-    color:white;
-    text-shadow:
-    3px 3px 0 #cfcfcf,
-    6px 6px 0 #9a9a9a,
-    9px 9px 0 #5f5f5f,
-    12px 12px 15px rgba(0,0,0,.7);
-    text-align:center;
-}
-
-.aurora{
-    text-align:center;
-    color:white;
-    font-size:30px;
-    margin-bottom:35px;
-    margin-top:10px;
-}
-
-.cubo{
-    display:inline-block;
-    width:28px;
-    height:28px;
-    background:linear-gradient(135deg,#00ffff,#7b68ee,#ff66ff);
-    border:2px solid white;
-    margin-right:8px;
-    vertical-align:middle;
-}
-
-.btn{
-    width:380px;
-    padding:18px;
-    margin:8px;
-    font-size:24px;
-    font-weight:bold;
-    background:linear-gradient(#8a8a8a,#5f5f5f);
-    color:white;
-    border:3px solid #444;
-    cursor:pointer;
-    transition:.2s;
-    box-shadow: inset 0 2px 0 rgba(255,255,255,.3), 0 6px 0 #333, 0 10px 15px rgba(0,0,0,.4);
-}
-
-.btn:hover{
-    background:linear-gradient(#63d963,#2c9e2c);
-    border-color:#1d6f1d;
-    transform:translateY(-2px);
-}
-
+#mainMenu{ display:none; width:100vw; height:100vh; }
+.background{ position:fixed; inset:-25%; background:url("https://images.unsplash.com/photo-1614294148960-9aa740632a87?w=1200") center/cover; filter:blur(10px) brightness(.65); animation:girar 45s linear infinite; }
+@keyframes girar{ from{ transform:rotate(0deg) scale(1.4); } to{ transform:rotate(360deg) scale(1.4); } }
+.overlay{ position:fixed; inset:0; background:rgba(0,0,0,.25); }
+.menu{ position:relative; z-index:5; height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; }
+.minecraft{ font-size:80px; font-weight:900; color:white; text-shadow: 3px 3px 0 #cfcfcf, 6px 6px 0 #9a9a9a, 9px 9px 0 #5f5f5f, 12px 12px 15px rgba(0,0,0,.7); text-align:center; }
+.aurora{ text-align:center; color:white; font-size:30px; margin-bottom:35px; margin-top:10px; }
+.cubo{ display:inline-block; width:28px; height:28px; background:linear-gradient(135deg,#00ffff,#7b68ee,#ff66ff); border:2px solid white; margin-right:8px; vertical-align:middle; }
+.btn{ width:380px; padding:18px; margin:8px; font-size:24px; font-weight:bold; background:linear-gradient(#8a8a8a,#5f5f5f); color:white; border:3px solid #444; cursor:pointer; transition:.2s; box-shadow: inset 0 2px 0 rgba(255,255,255,.3), 0 6px 0 #333, 0 10px 15px rgba(0,0,0,.4); }
+.btn:hover{ background:linear-gradient(#63d963,#2c9e2c); border-color:#1d6f1d; transform:translateY(-2px); }
 .btn:active{ transform:translateY(4px); }
-
-.criarConta{
-    position:fixed;
-    left:20px;
-    bottom:20px;
-    width:230px;
-    padding:15px;
-    background:linear-gradient(#8a8a8a,#5f5f5f);
-    color:white;
-    border:3px solid #444;
-    font-size:22px;
-    font-weight:bold;
-    cursor:pointer;
-}
-
+.criarConta{ position:fixed; left:20px; bottom:20px; width:230px; padding:15px; background:linear-gradient(#8a8a8a,#5f5f5f); color:white; border:3px solid #444; font-size:22px; font-weight:bold; cursor:pointer; }
 .criarConta:hover{ background:linear-gradient(#63d963,#2c9e2c); }
-
-.versao{
-    position:fixed;
-    right:20px;
-    bottom:20px;
-    color:white;
-    font-size:22px;
-    font-weight:bold;
-}
+.versao{ position:fixed; right:20px; bottom:20px; color:white; font-size:22px; font-weight:bold; }
 
 /* ========================= */
 /* TELA DE JOGAR (MODAL)     */
 /* ========================= */
 
-.modal-jogar {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 10;
-    background: rgba(0,0,0,0.8);
-    justify-content: center;
-    align-items: center;
-}
-
-.conteudo-modal {
-    background: #2c2c2c;
-    border: 4px solid #4a4a4a;
-    width: 650px;
-    max-width: 95%;
-    padding: 20px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.8);
-    position: relative;
-}
-
-.abas-container {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    border-bottom: 3px solid #4a4a4a;
-    padding-bottom: 10px;
-}
-
-.aba-btn {
-    flex: 1;
-    padding: 12px;
-    font-size: 20px;
-    font-weight: bold;
-    background: #1a1a1a;
-    color: #7a7a7a;
-    border: 2px solid #4a4a4a;
-    cursor: pointer;
-    margin: 0 4px;
-}
-
-.aba-btn.ativa {
-    background: #4a4a4a;
-    color: #fff;
-    border-color: #fff;
-}
-
-.painel-conteudo {
-    display: none;
-    min-height: 250px;
-    color: white;
-}
-
-.painel-conteudo.ativo {
-    display: block;
-}
-
-.campo-grupo {
-    margin-bottom: 20px;
-}
-
-.campo-grupo label {
-    display: block;
-    font-size: 18px;
-    margin-bottom: 8px;
-    font-weight: bold;
-}
-
-.campo-grupo input[type="text"] {
-    width: 100%;
-    padding: 12px;
-    font-size: 18px;
-    background: #1a1a1a;
-    border: 2px solid #4a4a4a;
-    color: white;
-    outline: none;
-}
-
-.modo-opcoes {
-    display: flex;
-    gap: 10px;
-}
-
-.modo-btn {
-    flex: 1;
-    padding: 12px;
-    font-size: 16px;
-    font-weight: bold;
-    background: #1a1a1a;
-    color: white;
-    border: 2px solid #4a4a4a;
-    cursor: pointer;
-}
-
-.modo-btn.selecionado {
-    background: #2c9e2c;
-    border-color: #fff;
-}
-
-.modal-footer {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-}
-
-.btn-modal {
-    padding: 12px 25px;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    border: 2px solid #444;
-    color: white;
-}
-
+.modal-jogar { display: none; position: fixed; inset: 0; z-index: 10; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; }
+.conteudo-modal { background: #2c2c2c; border: 4px solid #4a4a4a; width: 650px; max-width: 95%; padding: 20px; box-shadow: 0 0 20px rgba(0,0,0,0.8); position: relative; }
+.abas-container { display: flex; justify-content: space-between; margin-bottom: 20px; border-bottom: 3px solid #4a4a4a; padding-bottom: 10px; }
+.aba-btn { flex: 1; padding: 12px; font-size: 20px; font-weight: bold; background: #1a1a1a; color: #7a7a7a; border: 2px solid #4a4a4a; cursor: pointer; margin: 0 4px; }
+.aba-btn.ativa { background: #4a4a4a; color: #fff; border-color: #fff; }
+.painel-conteudo { display: none; min-height: 250px; color: white; }
+.painel-conteudo.ativo { display: block; }
+.campo-grupo { margin-bottom: 20px; }
+.campo-grupo label { display: block; font-size: 18px; margin-bottom: 8px; font-weight: bold; }
+.campo-grupo input[type="text"] { width: 100%; padding: 12px; font-size: 18px; background: #1a1a1a; border: 2px solid #4a4a4a; color: white; outline: none; }
+.modo-opcoes { display: flex; gap: 10px; }
+.modo-btn { flex: 1; padding: 12px; font-size: 16px; font-weight: bold; background: #1a1a1a; color: white; border: 2px solid #4a4a4a; cursor: pointer; }
+.modo-btn.selecionado { background: #2c9e2c; border-color: #fff; }
+.modal-footer { display: flex; justify-content: space-between; margin-top: 20px; }
+.btn-modal { padding: 12px 25px; font-size: 18px; font-weight: bold; cursor: pointer; border: 2px solid #444; color: white; }
 .btn-criar { background: #2c9e2c; }
 .btn-criar:hover { background: #3cd03c; }
 .btn-fechar { background: #b30000; }
 .btn-fechar:hover { background: #e60000; }
 
 /* ========================= */
-/* TELA DO JOGO (3D REAL)    */
+/* HUD DO JOGO (INTERFACES)  */
 /* ========================= */
 
-#gameContainer {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 50;
-}
-
-.game-ui {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    color: white;
-    font-family: monospace;
-    font-size: 16px;
-    text-shadow: 2px 2px 0 #000;
-    background: rgba(0,0,0,0.5);
-    padding: 15px;
-    border: 2px solid #555;
-    pointer-events: none;
-    z-index: 55;
-}
-
-.btn-sair-jogo {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    padding: 10px 20px;
-    background: #b30000;
-    color: white;
-    border: 2px solid white;
-    font-weight: bold;
-    cursor: pointer;
-    z-index: 60;
-}
-
-/* Mira no centro da tela */
-.crosshair {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    width: 20px;
-    height: 20px;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-    z-index: 55;
-}
-.crosshair::before, .crosshair::after {
-    content: '';
-    position: absolute;
-    background: rgba(255, 255, 255, 0.7);
-}
+#gameContainer { display: none; position: fixed; inset: 0; z-index: 50; }
+.crosshair { position: fixed; top: 50%; left: 50%; width: 20px; height: 20px; transform: translate(-50%, -50%); pointer-events: none; z-index: 55; }
+.crosshair::before, .crosshair::after { content: ''; position: absolute; background: rgba(255, 255, 255, 0.6); }
 .crosshair::before { top: 9px; left: 0; width: 20px; height: 2px; }
 .crosshair::after { top: 0; left: 9px; width: 2px; height: 20px; }
 
-@media(max-width:600px){
-    .minecraft{ font-size:48px; }
-    .aurora{ font-size:22px; }
-    .btn{ width:90%; }
+.btn-sair-jogo { position: absolute; top: 15px; right: 15px; padding: 8px 15px; background: #b30000; color: white; border: 2px solid white; font-weight: bold; cursor: pointer; z-index: 60; font-size: 14px; }
+.btn-inventario-toggle { position: absolute; top: 15px; right: 150px; padding: 8px 15px; background: #555; color: white; border: 2px solid white; font-weight: bold; cursor: pointer; z-index: 60; font-size: 14px; }
+
+/* Status: Corações e Fome */
+.status-bars {
+    position: absolute;
+    bottom: 75px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 360px;
+    display: none; /* Ativado via JS no modo sobrevivência */
+    justify-content: space-between;
+    pointer-events: none;
+    z-index: 55;
+}
+.bar-grupo { display: flex; gap: 2px; font-size: 18px; text-shadow: 1px 1px 0 #000; }
+.coracao { color: #ff2222; }
+.fome { color: #ff9922; }
+
+/* Hotbar */
+.hotbar-container {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(40,40,40,0.75);
+    border: 4px solid #444;
+    display: flex;
+    padding: 3px;
+    z-index: 55;
+}
+.hotbar-slot {
+    width: 46px;
+    height: 46px;
+    border: 2px solid #222;
+    margin: 0 2px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,0.4);
+    position: relative;
+}
+.hotbar-slot.selecionado {
+    border: 4px solid #ffffff;
+    box-shadow: 0 0 5px #fff;
+}
+.slot-icone {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+}
+.slot-grama { background: linear-gradient(#2c9e2c, #5c3c24); }
+.slot-terra { background: #5c3c24; }
+.slot-pedra { background: #7a7a7a; }
+
+/* ========================= */
+/* INTERFACE DO INVENTÁRIO   */
+/* ========================= */
+
+#inventoryScreen {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 70;
+    justify-content: center;
+    align-items: center;
+}
+.inventory-box {
+    background: #8c8c8c;
+    border: 5px solid #3c3c3c;
+    padding: 20px;
+    width: 420px;
+    box-shadow: inset -3px -3px 0 #555, inset 3px 3px 0 #fff;
+    color: #333;
+}
+.inventory-titulo { font-size: 18px; font-weight: bold; margin-bottom: 15px; text-shadow: 1px 1px 0 #eee; }
+.grid-inventario { display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; margin-bottom: 20px; }
+.grid-inventario .hotbar-slot { margin: 0; width: 40px; height: 40px; background: #8b8b8b; border: 2px solid #373737; box-shadow: inset -2px -2px 0 #ddd, inset 2px 2px 0 #222; cursor: pointer;}
+
+/* ========================= */
+/* CONTROLES MOBILE (JOYSTICK)*/
+/* ========================= */
+
+.mobile-controls {
+    display: none; /* Ativado via JS se for detectado mobile */
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 56;
+}
+.joystick-area {
+    position: absolute;
+    bottom: 30px;
+    left: 40px;
+    width: 120px;
+    height: 120px;
+    background: rgba(255,255,255,0.15);
+    border: 3px solid rgba(255,255,255,0.4);
+    border-radius: 50%;
+    pointer-events: auto;
+}
+.joystick-pino {
+    position: absolute;
+    top: 35px;
+    left: 35px;
+    width: 50px;
+    height: 50px;
+    background: rgba(255,255,255,0.6);
+    border-radius: 50%;
+}
+.botoes-mobile-acao {
+    position: absolute;
+    bottom: 40px;
+    right: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    pointer-events: auto;
+}
+.btn-mobile-round {
+    width: 60px;
+    height: 60px;
+    background: rgba(255,255,255,0.25);
+    border: 3px solid rgba(255,255,255,0.5);
+    border-radius: 50%;
+    color: white;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+}
+
+@media(max-width:768px) {
+    .minecraft { font-size:48px; }
+    .aurora { font-size:22px; }
+    .btn { width:90%; }
+    .status-bars { width: 300px; }
+    .inventory-box { width: 92%; }
 }
 </style>
 </head>
@@ -403,16 +270,13 @@ body{
 <div id="mainMenu">
     <div class="background"></div>
     <div class="overlay"></div>
-
     <div class="menu">
         <div class="minecraft">MINECRAFT</div>
         <div class="aurora"><span class="cubo"></span>AURORA EDITION</div>
-
         <button class="btn" onclick="abrirModalJogar()">Jogar</button>
         <button class="btn" onclick="alert('Abrindo Configurações...')">Configurações</button>
         <button class="btn" onclick="alert('Abrindo Marketplace...')">Marketplace</button>
     </div>
-
     <button class="criarConta" onclick="alert('Sistema de Conta em desenvolvimento!')">Criar Conta</button>
     <div class="versao">v1.2</div>
 </div>
@@ -424,12 +288,11 @@ body{
             <button class="aba-btn" onclick="mudarAba('realms')">Realms</button>
             <button class="aba-btn" onclick="mudarAba('servidores')">Servidores</button>
         </div>
-
         <div id="painel-mundos" class="painel-conteudo ativo">
             <h3 style="margin-bottom:15px;">Criar Novo Mundo</h3>
             <div class="campo-grupo">
                 <label>Nome do Mundo:</label>
-                <input type="text" id="nomeMundo" value="Mundo das Montanhas">
+                <input type="text" id="nomeMundo" value="Meu Mundo Aurora">
             </div>
             <div class="campo-grupo">
                 <label>Modo de Jogo:</label>
@@ -440,10 +303,6 @@ body{
                 </div>
             </div>
         </div>
-
-        <div id="painel-realms" class="painel-conteudo"><p style="text-align:center; margin-top:50px; color:#aaa;">Realms indisponível.</p></div>
-        <div id="painel-servidores" class="painel-conteudo"><p style="text-align:center; margin-top:50px; color:#aaa;">Servidores indisponíveis.</p></div>
-
         <div class="modal-footer">
             <button class="btn-modal btn-fechar" onclick="fecharModalJogar()">Voltar</button>
             <button class="btn-modal btn-criar" id="btnCriarMundo" onclick="iniciarCarregamentoMundo()">Criar Mundo</button>
@@ -453,17 +312,53 @@ body{
 
 <div id="gameContainer">
     <div class="crosshair"></div>
-    <button class="btn-sair-jogo" onclick="sairDoJogo()">Sair para o Menu</button>
-    <div class="game-ui">
-        <div id="ui-nome">Mundo: </div>
-        <div id="ui-modo">Modo: </div>
-        <div id="ui-pos" style="margin-top: 5px; color: lime;">X: 0 | Y: 0 | Z: 0</div>
-        <div style="margin-top: 10px; font-size: 12px; color: #bbb;">
-            [W, A, S, D] Mover<br>
-            [Setas] Olhar ao Redor<br>
-            [Espaço] Voar / Subir<br>
-            [Shift] Descer
+    <button class="btn-sair-jogo" onclick="sairDoJogo()">Menu</button>
+    <button class="btn-inventario-toggle" onclick="abrirInventario()">Inventário (E)</button>
+
+    <div class="status-bars" id="hudStatus">
+        <div class="bar-grupo" id="barCoraçoes">❤❤❤❤❤❤❤❤❤❤</div>
+        <div class="bar-grupo" id="barFome">🍗🍗🍗🍗🍗🍗🍗🍗🍗🍗</div>
+    </div>
+
+    <div class="hotbar-container">
+        <div class="hotbar-slot selecionado" id="slot-0" onclick="selecionarSlot(0)"><div class="slot-icone slot-grama"></div></div>
+        <div class="hotbar-slot" id="slot-1" onclick="selecionarSlot(1)"><div class="slot-icone slot-terra"></div></div>
+        <div class="hotbar-slot" id="slot-2" onclick="selecionarSlot(2)"><div class="slot-icone slot-pedra"></div></div>
+        <div class="hotbar-slot" id="slot-3" onclick="selecionarSlot(3)"></div>
+        <div class="hotbar-slot" id="slot-4" onclick="selecionarSlot(4)"></div>
+        <div class="hotbar-slot" id="slot-5" onclick="selecionarSlot(5)"></div>
+        <div class="hotbar-slot" id="slot-6" onclick="selecionarSlot(6)"></div>
+        <div class="hotbar-slot" id="slot-7" onclick="selecionarSlot(7)"></div>
+        <div class="hotbar-slot" id="slot-8" onclick="selecionarSlot(8)"></div>
+    </div>
+
+    <div class="mobile-controls" id="mobileHud">
+        <div class="joystick-area" id="joyArea">
+            <div class="joystick-pino" id="joyPino"></div>
         </div>
+        <div class="botoes-mobile-acao">
+            <div class="btn-mobile-round" id="btnPular">PULAR</div>
+            <div class="btn-mobile-round" id="btnOlhar" style="font-size: 11px; text-align:center;">OLHAR<br>ARRASTE</div>
+        </div>
+    </div>
+</div>
+
+<div id="inventoryScreen" onclick="fecharInventarioComClick Fora(event)">
+    <div class="inventory-box" onclick="event.stopPropagation()">
+        <div class="inventory-titulo">Inventário Aurora</div>
+        <div style="font-size: 13px; margin-bottom: 5px;">Itens Guardados:</div>
+        <div class="grid-inventario">
+            <script>
+                for(let i=0; i<27; i++){
+                    let itemhtml = '';
+                    if(i===0) itemhtml = '<div class="slot-icone slot-grama"></div>';
+                    if(i===1) itemhtml = '<div class="slot-icone slot-terra"></div>';
+                    if(i===2) itemhtml = '<div class="slot-icone slot-pedra"></div>';
+                    document.write(`<div class="hotbar-slot" onclick="alert('Item selecionado!')">${itemhtml}</div>`);
+                }
+            </script>
+        </div>
+        <button class="btn-modal btn-fechar" style="width:100%" onclick="fecharInventario()">Fechar</button>
     </div>
 </div>
 
@@ -474,19 +369,15 @@ let barra = document.getElementById("loadingFill");
 let texto = document.getElementById("loadingText");
 
 let carregamento = setInterval(() => {
-    progresso += 2;
+    progresso += 4;
     barra.style.width = progresso + "%";
     texto.innerHTML = "Carregando... " + progresso + "%";
-
     if(progresso >= 100){
         clearInterval(carregamento);
         setTimeout(()=>{
-            document.getElementById("loadingScreen").style.opacity="0";
-            setTimeout(()=>{
-                document.getElementById("loadingScreen").style.display="none";
-                document.getElementById("mainMenu").style.display="block";
-            },500);
-        },500);
+            document.getElementById("loadingScreen").style.display="none";
+            document.getElementById("mainMenu").style.display="block";
+        },400);
     }
 }, 15);
 
@@ -496,41 +387,27 @@ function abrirModalJogar() { document.getElementById("modalJogar").style.display
 function fecharModalJogar() { document.getElementById("modalJogar").style.display = "none"; }
 
 function mudarAba(aba) {
-    let botoes = document.querySelectorAll('.aba-btn');
-    botoes.forEach(b => b.classList.remove('active'));
-    let paineis = document.querySelectorAll('.painel-conteudo');
-    paineis.forEach(p => p.classList.remove('ativo'));
     let btnCriar = document.getElementById("btnCriarMundo");
-    
-    if (aba === 'mundos') {
-        document.getElementById('painel-mundos').classList.add('ativo');
-        botoes[0].classList.add('ativa');
-        btnCriar.style.display = "block";
-    } else {
-        btnCriar.style.display = "none";
-    }
+    btnCriar.style.display = (aba === 'mundos') ? "block" : "none";
 }
 
 function selecionarModo(modo) {
     modoSelecionado = modo;
-    document.getElementById("btn-criativo").classList.remove("selecionado");
-    document.getElementById("btn-sobrevivencia").classList.remove("selecionado");
-    document.getElementById("btn-hardcore").classList.remove("selecionado");
-    if(modo === 'Criativo') document.getElementById("btn-criativo").classList.add("selecionado");
-    if(modo === 'Sobrevivência') document.getElementById("btn-sobrevivencia").classList.add("selecionado");
-    if(modo === 'Hardcore') document.getElementById("btn-hardcore").classList.add("selecionado");
+    document.getElementById("btn-criativo").className = "modo-btn";
+    document.getElementById("btn-sobrevivencia").className = "modo-btn";
+    document.getElementById("btn-hardcore").className = "modo-btn";
+    if(modo === 'Criativo') document.getElementById("btn-criativo").className = "modo-btn selecionado";
+    if(modo === 'Sobrevivência') document.getElementById("btn-sobrevivencia").className = "modo-btn selecionado";
+    if(modo === 'Hardcore') document.getElementById("btn-hardcore").className = "modo-btn selecionado";
 }
 
-// --- Novas Frases Solicitadas ---
 const dicasMinecraft = [
     "Não mate golfinhos, seu monstro.",
     "Sabia que se assar um tronco de madeira em uma fornalha ele vira carvão vegetal?",
     "Nunca cave diretamente para baixo! (A lava te espera).",
     "Gatos espantam Creepers. Miau!",
-    "Olhar nos olhos de um Enderman não é uma boa ideia...",
-    "Precisa de lã? Use tesouras nas ovelhas para não machucá-las.",
-    "Gerando montanhas infinitas com blocos de Pedra e Terra...",
-    "Empilhando blocos de Grama perfeitamente quadradas..."
+    "Se estiver jogando no Celular, use o Joystick na tela para andar!",
+    "Pressione 'E' no PC ou use o botão superior para abrir o Inventário."
 ];
 
 function iniciarCarregamentoMundo() {
@@ -541,26 +418,16 @@ function iniciarCarregamentoMundo() {
     let gameLoadingScreen = document.getElementById("gameLoadingScreen");
     let gameBar = document.getElementById("gameLoadingFill");
     let gameText = document.getElementById("gameLoadingText");
-    
     gameLoadingScreen.style.display = "flex";
     
     let gameProgresso = 0;
-    let fraseIndex = 0;
     gameText.innerHTML = `"${dicasMinecraft[0]}"`;
 
-    let dicaInterval = setInterval(() => {
-        fraseIndex = (fraseIndex + 1) % dicasMinecraft.length;
-        gameText.innerHTML = `"${dicasMinecraft[fraseIndex]}"`;
-    }, 1000);
-
     let jogoCarregado = setInterval(() => {
-        gameProgresso += 2;
+        gameProgresso += 4;
         gameBar.style.width = gameProgresso + "%";
-
         if(gameProgresso >= 100){
             clearInterval(jogoCarregado);
-            clearInterval(dicaInterval);
-            
             setTimeout(() => {
                 gameLoadingScreen.style.display = "none";
                 inicializarMundoMinecraft3D(nomeMundo, modoSelecionado);
@@ -577,115 +444,179 @@ let jogandoAtivo = false;
 let chaves = {};
 let blocosCarregados = {};
 let anguloHorizontal = 0, anguloVertical = 0;
-const TAMANHO_BLOCO = 1;
-const DISTANCIA_RENDER = 16; // Raio de renderização infinita ao redor do jogador
+let slotSelecionadoIndex = 0;
+const DISTANCIA_RENDER = 12;
 
-// Função simples para simular relevo (Montanhas) matematicamente
-function obterAlturaMontanha(x, z) {
-    let altura = Math.sin(x * 0.1) * Math.cos(z * 0.1) * 4;
-    altura += Math.sin(x * 0.03) * 6; // Adiciona montanhas maiores
-    return Math.floor(altura);
+// Joystick Mobile States
+let joyX = 0, joyY = 0;
+let toqueArrastandoOlhar = false, touchStartX = 0, touchStartY = 0;
+
+function verificarSeEControlCelular() {
+    // Ativa os analógicos na tela caso detecte celular ou toque ativo
+    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+        document.getElementById("mobileHud").style.display = "block";
+        configurarEventosMobile();
+    }
 }
 
-// Criar texturas pixeladas simuladas em Canvas para carregar super leve
+function selecionarSlot(index) {
+    document.querySelectorAll('.hotbar-slot').forEach(s => s.classList.remove('selecionado'));
+    document.getElementById(`slot-${index}`).classList.add('selecionado');
+    slotSelecionadoIndex = index;
+}
+
+function abrirInventario() {
+    document.getElementById("inventoryScreen").style.display = "flex";
+}
+function fecharInventario() {
+    document.getElementById("inventoryScreen").style.display = "none";
+}
+function fecharInventarioComClickFora(e) { fecharInventario(); }
+
+function obterAlturaMontanha(x, z) {
+    return Math.floor(Math.sin(x * 0.1) * Math.cos(z * 0.1) * 3 + Math.sin(x * 0.04) * 4);
+}
+
 function criarTexturaMinecraft(tipo) {
-    let canvasTex = document.createElement('canvas');
-    canvasTex.width = 16;
-    canvasTex.height = 16;
+    let canvasTex = document.createElement('canvas'); canvasTex.width = 16; canvasTex.height = 16;
     let ctxTex = canvasTex.getContext('2d');
-    
     for(let x=0; x<16; x++) {
         for(let y=0; y<16; y++) {
-            let ruido = Math.random() * 25;
-            if(tipo === 'grama_topo') {
-                ctxTex.fillStyle = `rgb(${40}, ${140 + ruido}, ${40})`;
-            } else if (tipo === 'terra') {
-                ctxTex.fillStyle = `rgb(${110 + ruido}, ${70 + ruido}, ${40})`;
-            } else if (tipo === 'pedra') {
-                ctxTex.fillStyle = `rgb(${110 + ruido}, ${110 + ruido}, ${110 + ruido})`;
-            } else if (tipo === 'grama_lado') {
-                if(y < 5) ctxTex.fillStyle = `rgb(${40}, ${140 + ruido}, ${40})`;
-                else ctxTex.fillStyle = `rgb(${110 + ruido}, ${70 + ruido}, ${40})`;
+            let ruido = Math.random() * 20;
+            if(tipo === 'grama_topo') ctxTex.fillStyle = `rgb(${40}, ${130 + ruido}, ${40})`;
+            else if (tipo === 'terra') ctxTex.fillStyle = `rgb(${100 + ruido}, ${65 + ruido}, ${35})`;
+            else if (tipo === 'pedra') ctxTex.fillStyle = `rgb(${105 + ruido}, ${105 + ruido}, ${105 + ruido})`;
+            else if (tipo === 'grama_lado') {
+                if(y < 5) ctxTex.fillStyle = `rgb(${40}, ${130 + ruido}, ${40})`;
+                else ctxTex.fillStyle = `rgb(${100 + ruido}, ${65 + ruido}, ${35})`;
             }
             ctxTex.fillRect(x, y, 1, 1);
         }
     }
     let textura = new THREE.CanvasTexture(canvasTex);
-    textura.magFilter = THREE.NearestFilter; // Deixa o visual todo pixelado estilo original!
-    textura.minFilter = THREE.NearestFilter;
+    textura.magFilter = THREE.NearestFilter; textura.minFilter = THREE.NearestFilter;
     return new THREE.MeshLambertMaterial({ map: textura });
 }
 
 function inicializarMundoMinecraft3D(nome, modo) {
     document.getElementById("gameContainer").style.display = "block";
-    document.getElementById("ui-nome").innerText = "Mundo: " + nome;
-    document.getElementById("ui-modo").innerText = "Modo: " + modo;
+    
+    // Se for Sobrevivência ou Hardcore, ativa a barra de vida/fome
+    let hudStatus = document.getElementById("hudStatus");
+    if(modo === "Sobrevivência" || modo === "Hardcore") {
+        hudStatus.style.display = "flex";
+    } else {
+        hudStatus.style.display = "none";
+    }
 
-    // Criar Cena e Câmera
-    cena = new THREE.Scene();
-    cena.background = new THREE.Color(0x78a7ff); // Céu do Mine
-    cena.fog = new THREE.FogExp2(0x78a7ff, 0.05); // Névoa de distância
+    cena = new THREE.Scene(); cena.background = new THREE.Color(0x78a7ff);
+    cena.fog = new THREE.FogExp2(0x78a7ff, 0.06);
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 10, 0); // Posição inicial do jogador
+    camera.position.set(0, 8, 0);
 
     renderizador = new THREE.WebGLRenderer({ antialias: false });
     renderizador.setSize(window.innerWidth, window.innerHeight);
     document.getElementById("gameContainer").appendChild(renderizador.domElement);
 
-    // Iluminação do Mundo
-    let luzAmbiente = new THREE.AmbientLight(0xcccccc);
-    cena.add(luzAmbiente);
-    let luzSol = new THREE.DirectionalLight(0xffffff, 0.6);
-    luzSol.position.set(10, 20, 15);
-    cena.add(luzSol);
+    let luzAmbiente = new THREE.AmbientLight(0xdddddd); cena.add(luzAmbiente);
 
-    // Preparar Materiais dos Blocos
     let matGramaTopo = criarTexturaMinecraft('grama_topo');
     let matGramaLado = criarTexturaMinecraft('grama_lado');
     let matTerra = criarTexturaMinecraft('terra');
     let matPedra = criarTexturaMinecraft('pedra');
 
     window.materiaisBloco = {
-        grama: [matGramaLado, matGramaLado, matGramaTopo, matTerra, matGramaLado, matGramaLado], // Laterais, cima, baixo
+        grama: [matGramaLado, matGramaLado, matGramaTopo, matTerra, matGramaLado, matGramaLado],
         terra: Array(6).fill(matTerra),
         pedra: Array(6).fill(matPedra)
     };
 
-    // Eventos
     window.addEventListener("resize", onWindowResize);
-    window.addEventListener("keydown", (e) => chaves[e.key.toLowerCase()] = true);
+    window.addEventListener("keydown", capturarTecladoDown);
     window.addEventListener("keyup", (e) => chaves[e.key.toLowerCase()] = false);
 
+    verificarSeEControlCelular();
     jogandoAtivo = true;
     loopMinecraft();
 }
 
-// Atualiza e gera blocos infinitamente ao redor da posição do jogador!
+function capturarTecladoDown(e) {
+    chaves[e.key.toLowerCase()] = true;
+    // Atalho tecla E abre/fecha inventário
+    if(e.key.toLowerCase() === 'e') {
+        let inv = document.getElementById("inventoryScreen");
+        if(inv.style.display === "flex") fecharInventario();
+        else abrirInventario();
+    }
+    // Números 1 a 9 selecionam slots da hotbar
+    if(e.key >= '1' && e.key <= '9') {
+        selecionarSlot(parseInt(e.key) - 1);
+    }
+}
+
+function configurarEventosMobile() {
+    let pino = document.getElementById("joyPino");
+    let area = document.getElementById("joyArea");
+    
+    area.addEventListener("touchstart", (e) => atualizarJoystick(e));
+    area.addEventListener("touchmove", (e) => atualizarJoystick(e));
+    area.addEventListener("touchend", () => {
+        pino.style.top = "35px"; pino.style.left = "35px";
+        joyX = 0; joyY = 0;
+    });
+
+    document.getElementById("btnPular").addEventListener("touchstart", () => chaves[" "] = true);
+    document.getElementById("btnPular").addEventListener("touchend", () => chaves[" "] = false);
+
+    // Arrastar na tela livre para virar câmera
+    window.addEventListener("touchstart", (e) => {
+        if(e.target.closest('.joystick-area') || e.target.closest('.btn-mobile-round') || e.target.closest('.btn-sair-jogo')) return;
+        toqueArrastandoOlhar = true;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+    });
+    window.addEventListener("touchmove", (e) => {
+        if(!toqueArrastandoOlhar) return;
+        let dx = e.touches[0].clientX - touchStartX;
+        let dy = e.touches[0].clientY - touchStartY;
+        anguloHorizontal -= dx * 0.007;
+        anguloVertical = Math.max(-Math.PI/2.2, Math.min(Math.PI/2.2, anguloVertical - dy * 0.007));
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+    });
+    window.addEventListener("touchend", () => toqueArrastandoOlhar = false);
+}
+
+function atualizarJoystick(e) {
+    let rect = document.getElementById("joyArea").getBoundingClientRect();
+    let touch = e.touches[0];
+    let tx = touch.clientX - (rect.left + rect.width/2);
+    let ty = touch.clientY - (rect.top + rect.height/2);
+    let dist = Math.sqrt(tx*tx + ty*ty);
+    let maxDist = 40;
+    if(dist > maxDist) { tx *= maxDist/dist; ty *= maxDist/dist; }
+    document.getElementById("joyPino").style.left = (35 + tx) + "px";
+    document.getElementById("joyPino").style.top = (35 + ty) + "px";
+    joyX = tx / maxDist;
+    joyY = -ty / maxDist; // Invertido para bater com os eixos 3D
+}
+
 function atualizarChunksInfinitos() {
     let pX = Math.floor(camera.position.x);
     let pZ = Math.floor(camera.position.z);
-    
-    let geo = new THREE.BoxGeometry(TAMANHO_BLOCO, TAMANHO_BLOCO, TAMANHO_BLOCO);
+    let geo = new THREE.BoxGeometry(1, 1, 1);
 
     for (let x = pX - DISTANCIA_RENDER; x < pX + DISTANCIA_RENDER; x++) {
         for (let z = pZ - DISTANCIA_RENDER; z < pZ + DISTANCIA_RENDER; z++) {
             let chave = `${x},${z}`;
-            
-            // Se esse pedaço de coluna ainda não foi gerado, vamos criar!
             if (!blocosCarregados[chave]) {
                 blocosCarregados[chave] = true;
                 let alturaMaxima = obterAlturaMontanha(x, z);
-
-                // Criar coluna de blocos
-                for (let y = alturaMaxima - 5; y <= alturaMaxima; y++) {
-                    let tipoMaterial = materiaisBloco.pedra; // Base profunda de pedra
-                    
-                    if (y === alturaMaxima) {
-                        tipoMaterial = materiaisBloco.grama; // Superfície é Grama
-                    } else if (y > alturaMaxima - 3) {
-                        tipoMaterial = materiaisBloco.terra; // Meio é Terra
-                    }
+                for (let y = alturaMaxima - 3; y <= alturaMaxima; y++) {
+                    let tipoMaterial = materiaisBloco.pedra;
+                    if (y === alturaMaxima) tipoMaterial = materiaisBloco.grama;
+                    else if (y > alturaMaxima - 2) tipoMaterial = materiaisBloco.terra;
 
                     let bloco = new THREE.Mesh(geo, tipoMaterial);
                     bloco.position.set(x, y, z);
@@ -697,59 +628,46 @@ function atualizarChunksInfinitos() {
 }
 
 function gerenciarControles() {
-    let velocidade = 0.15;
-    let velRotacao = 0.03;
+    let velocidade = 0.12;
+    let velRotacao = 0.035;
 
-    // Olhar ao redor (Setas esquerda/direita/cima/baixo)
+    // Teclado Olhar (Setas)
     if (chaves["arrowleft"]) anguloHorizontal += velRotacao;
     if (chaves["arrowright"]) anguloHorizontal -= velRotacao;
     if (chaves["arrowup"]) anguloVertical = Math.min(Math.PI/2.2, anguloVertical + velRotacao);
     if (chaves["arrowdown"]) anguloVertical = Math.max(-Math.PI/2.2, anguloVertical - velRotacao);
 
-    // Atualizar rotação da câmera
     let direcao = new THREE.Vector3();
     direcao.x = Math.sin(anguloHorizontal) * Math.cos(anguloVertical);
     direcao.y = Math.sin(anguloVertical);
     direcao.z = Math.cos(anguloHorizontal) * Math.cos(anguloVertical);
-    
-    let alvo = camera.position.clone().add(direcao);
-    camera.lookAt(alvo);
+    camera.lookAt(camera.position.clone().add(direcao));
 
-    // Mover jogador (W, S, A, D) baseado para onde ele olha
-    let direcaoMovimento = new THREE.Vector3(Math.sin(anguloHorizontal), 0, Math.cos(anguloHorizontal)).normalize();
-    
-    if (chaves["w"]) {
-        camera.position.x += direcaoMovimento.x * velocidade;
-        camera.position.z += direcaoMovimento.z * velocidade;
-    }
-    if (chaves["s"]) {
-        camera.position.x -= direcaoMovimento.x * velocidade;
-        camera.position.z -= direcaoMovimento.z * velocidade;
-    }
-    if (chaves["a"]) {
-        camera.position.x += direcaoMovimento.z * velocidade;
-        camera.position.z -= direcaoMovimento.x * velocidade;
-    }
-    if (chaves["d"]) {
-        camera.position.x -= direcaoMovimento.z * velocidade;
-        camera.position.z += direcaoMovimento.x * velocidade;
+    // Vetor de direção de movimento
+    let dirMov = new THREE.Vector3(Math.sin(anguloHorizontal), 0, Math.cos(anguloHorizontal)).normalize();
+    let dirLado = new THREE.Vector3(dirMov.z, 0, -dirMov.x);
+
+    // inputs do Teclado PC
+    if (chaves["w"]) { camera.position.x += dirMov.x * velocidade; camera.position.z += dirMov.z * velocidade; }
+    if (chaves["s"]) { camera.position.x -= dirMov.x * velocidade; camera.position.z -= dirMov.z * velocidade; }
+    if (chaves["a"]) { camera.position.x += dirLado.x * velocidade; camera.position.z += dirLado.z * velocidade; }
+    if (chaves["d"]) { camera.position.x -= dirLado.x * velocidade; camera.position.z -= dirLado.z * velocidade; }
+
+    // inputs do Analógico Mobile
+    if (joyX !== 0 || joyY !== 0) {
+        camera.position.x += (dirMov.x * joyY - dirLado.x * joyX) * velocidade;
+        camera.position.z += (dirMov.z * joyY - dirLado.z * joyX) * velocidade;
     }
 
-    // Voar/Subir e Descer (Espaço e Shift)
     if (chaves[" "]) camera.position.y += velocidade;
     if (chaves["shift"]) camera.position.y -= velocidade;
-
-    // Atualiza a UI com a posição exata
-    document.getElementById("ui-pos").innerText = `X: ${Math.floor(camera.position.x)} | Y: ${Math.floor(camera.position.y)} | Z: ${Math.floor(camera.position.z)}`;
 }
 
 function loopMinecraft() {
     if (!jogandoAtivo) return;
-    
     gerenciarControles();
     atualizarChunksInfinitos();
     renderizador.render(cena, camera);
-    
     requestAnimationFrame(loopMinecraft);
 }
 
@@ -762,15 +680,11 @@ function onWindowResize() {
 function sairDoJogo() {
     jogandoAtivo = false;
     document.getElementById("gameContainer").style.display = "none";
-    // Limpa o canvas do jogo anterior
     let canvasDom = renderizador.domElement;
-    if (canvasDom && canvasDom.parentNode) {
-        canvasDom.parentNode.removeChild(canvasDom);
-    }
+    if (canvasDom && canvasDom.parentNode) canvasDom.parentNode.removeChild(canvasDom);
     blocosCarregados = {};
     document.getElementById("mainMenu").style.display = "block";
 }
 </script>
-
 </body>
 </html>
