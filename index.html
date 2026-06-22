@@ -259,6 +259,19 @@ body{
     </div>
 </div>
 <script>
+    // Trava de segurança: impede que o erro do cacto quebre o carregamento do mapa
+const originalFillStyle = CanvasRenderingContext2D.prototype.__lookupSetter__('fillStyle') || 
+  Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype, 'fillStyle').set;
+
+Object.defineProperty(CanvasRenderingContext2D.prototype, 'fillStyle', {
+    set: function(val) {
+        if(typeof val === 'string' && val.includes('Animation')) {
+            val = val.replace('Animation ', ''); // Corrige o texto automaticamente em tempo de execução
+        }
+        originalFillStyle.call(this, val);
+    }
+});
+
 // --- Controle de Telas e Carregamento do Menu Principal ---
 let progresso = 0;
 let barra = document.getElementById("loadingFill");
