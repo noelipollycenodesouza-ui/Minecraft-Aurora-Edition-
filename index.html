@@ -1,498 +1,537 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Minecraft Aurora Edition v1.6 (Mineração, Fornalha e Economia)</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; }
-        body { margin: 0; overflow: hidden; font-family: Arial, sans-serif; background: #000; user-select: none; -webkit-user-select: none; }
-        
-        #crosshair {
-            position: absolute; top: 50%; left: 50%;
-            width: 10px; height: 10px;
-            transform: translate(-50%, -50%);
-            color: white; font-size: 20px;
-            pointer-events: none; z-index: 10; display: none;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minecraft Aurora Edition v1.2</title>
 
-        #ui-info {
-            position: absolute; top: 10px; left: 10px;
-            color: white; background: rgba(0,0,0,0.6);
-            padding: 12px; border-radius: 5px; pointer-events: none;
-            line-height: 1.4; font-size: 11px; z-index: 10; display: none;
-        }
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
 
-        #wallet-hud {
-            position: absolute; top: 10px; right: 10px;
-            color: #2ecc71; background: rgba(0,0,0,0.7);
-            padding: 10px 15px; border-radius: 5px; font-weight: bold;
-            font-size: 14px; z-index: 10; display: none; border: 1px solid #2ecc71;
-        }
+body{
+    overflow:hidden;
+    font-family:Arial, sans-serif;
+    background:#000;
+}
 
-        /* --- HOTBAR --- */
-        #hotbar {
-            position: absolute; bottom: 20px; left: 50%;
-            transform: translateX(-50%);
-            display: none; background: rgba(0, 0, 0, 0.5);
-            padding: 6px; border-radius: 6px; border: 2px solid #333;
-            z-index: 10;
-        }
-        .hotbar-slot {
-            width: 50px; height: 50px; margin: 0 3px;
-            border: 3px solid #555; background: #222;
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            color: white; font-size: 9px; font-weight: bold;
-            position: relative; border-radius: 4px; cursor: pointer;
-            display: inline-flex;
-        }
-        .hotbar-slot.active { border-color: #fff; background: #444; }
-        .slot-icon { width: 18px; height: 18px; margin-bottom: 2px; border-radius: 2px; }
+/* ========================= */
+/* TELAS DE CARREGAMENTO     */
+/* ========================= */
 
-        /* --- CONTROLES MOBILE --- */
-        #mobile-controls { display: none; position: absolute; inset: 0; pointer-events: none; z-index: 15; }
-        #joystick-zone {
-            position: absolute; bottom: 40px; left: 40px;
-            width: 120px; height: 120px; background: rgba(255,255,255,0.1);
-            border: 2px solid rgba(255,255,255,0.3); border-radius: 50%;
-            pointer-events: auto; display: flex; justify-content: center; align-items: center;
-        }
-        #joystick-handle { width: 50px; height: 50px; background: rgba(255,255,255,0.4); border-radius: 50%; border: 2px solid white; }
-        .mobile-btn {
-            position: absolute; pointer-events: auto; width: 55px; height: 55px;
-            background: rgba(0,0,0,0.6); border: 2px solid rgba(255,255,255,0.4);
-            border-radius: 50%; color: white; font-weight: bold; font-size: 14px;
-            display: flex; justify-content: center; align-items: center;
-        }
-        #btn-mobile-jump { bottom: 110px; right: 40px; width: 65px; height: 65px; font-size: 18px; }
-        #btn-mobile-break { bottom: 40px; right: 120px; background: rgba(179,0,0,0.6); }
-        #btn-mobile-build { bottom: 40px; right: 40px; background: rgba(44,158,44,0.6); }
-        #btn-mobile-inv { top: 70px; right: 15px; border-radius: 6px; width: 50px; height: 45px; font-size: 18px; }
+#loadingScreen, #gameLoadingScreen {
+    position:fixed;
+    inset:0;
+    background:#b30000;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+    transition:opacity 1s;
+}
 
-        /* --- INVENTÁRIO & COMPONENTES COMPLEMENTARES --- */
-        #inventory-screen {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 95%; max-width: 580px; background: #2c2c2c;
-            border: 4px solid #4a4a4a; border-radius: 4px;
-            padding: 15px; color: white; display: none; z-index: 100;
-        }
-        .inv-layout { display: flex; flex-direction: row; gap: 15px; margin-top: 10px; }
-        .inv-section { flex: 1; }
-        .craft-section { flex: 1; background: #1e1e1e; padding: 10px; border: 2px solid #444; border-radius: 4px; text-align: center; }
-        .inventory-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
-        .inv-item { background: #111; border: 2px solid #555; padding: 6px; text-align: center; border-radius: 4px; font-size: 11px; cursor: pointer; }
-        .inv-item:hover { border-color: limegreen; }
-        
-        .craft-grid-3x3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; width: 135px; margin: 10px auto; }
-        .craft-slot { width: 42px; height: 42px; background: #111; border: 2px solid #555; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 10px; }
-        .result-slot { width: 80px; height: 45px; background: #151515; border: 3px dashed limegreen; margin: 10px auto 0 auto; display: flex; justify-content: center; align-items: center; font-size: 11px; cursor: pointer; font-weight: bold; }
-        
-        /* Interface da Fornalha */
-        #furnace-screen {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 300px; background: #333; border: 4px solid #555; padding: 15px;
-            color: white; display: none; z-index: 101; text-align: center; border-radius: 6px;
-        }
-        .furnace-container { display: flex; flex-direction: column; align-items: center; gap: 10px; margin: 15px 0; }
-        .furnace-slot { width: 50px; height: 50px; background: #111; border: 2px solid #777; display: flex; justify-content: center; align-items: center; font-size: 11px; }
+#gameLoadingScreen {
+    display: none;
+    background: #1a1a1a; /* Fundo escuro para o carregamento do jogo */
+}
 
-        #btn-close-inv, .btn-furnace-close { display: block; width: 100%; padding: 8px; background: #b30000; color: white; border: none; font-weight: bold; margin-top: 12px; cursor: pointer; border-radius: 4px; }
-        .btn-furnace-close { background: #444; }
+.loadingTitle{
+    font-size:70px;
+    font-weight:900;
+    color:white;
+    text-shadow:
+    3px 3px 0 #999,
+    6px 6px 0 #555,
+    9px 9px 15px rgba(0,0,0,.5);
+}
 
-        /* --- MENUS --- */
-        #loadingScreen { position: fixed; inset: 0; background: #1e1e1e; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; }
-        .loadingTitle { font-size: 40px; font-weight: 900; color: white; letter-spacing: 2px; }
-        .loadingBar { width: 250px; height: 15px; background: #000; border: 2px solid #fff; margin-top: 20px; border-radius: 10px; overflow: hidden; }
-        .loadingFill { height: 100%; width: 0%; background: #2ecc71; }
-        #mainMenu { display: none; width: 100vw; height: 100vh; position: absolute; z-index: 500; background: #111; }
-        .menu-center { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .btn-start { padding: 15px 40px; font-size: 20px; font-weight: bold; background: #2ecc71; color: white; border: none; border-radius: 5px; cursor: pointer; box-shadow: 0 4px 0 #27ae60; }
-        .btn-start:hover { background: #2faf6a; }
-    </style>
+.loadingSubtitle{
+    color:white;
+    font-size:28px;
+    margin-top:10px;
+}
+
+.loadingBar{
+    width:420px;
+    max-width:90%;
+    height:30px;
+    margin-top:40px;
+    background:rgba(0,0,0,.3);
+    border:3px solid white;
+}
+
+.loadingFill{
+    height:100%;
+    width:0%;
+    background:limegreen;
+}
+
+.loadingText{
+    color:white;
+    font-size:24px;
+    margin-top:15px;
+    text-align: center;
+    max-width: 80%;
+}
+
+/* ========================= */
+/* MENU PRINCIPAL            */
+/* ========================= */
+
+#mainMenu{
+    display:none;
+    width:100vw;
+    height:100vh;
+}
+
+.background{
+    position:fixed;
+    inset:-25%;
+    background:url("https://images.unsplash.com/photo-1614294148960-9aa740632a87?w=1200") center/cover;
+    filter:blur(10px) brightness(.65);
+    animation:girar 45s linear infinite;
+}
+
+@keyframes girar{
+    from{ transform:rotate(0deg) scale(1.4); }
+    to{ transform:rotate(360deg) scale(1.4); }
+}
+
+.overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.25);
+}
+
+.menu{
+    position:relative;
+    z-index:5;
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+}
+
+.minecraft{
+    font-size:80px;
+    font-weight:900;
+    color:white;
+    text-shadow:
+    3px 3px 0 #cfcfcf,
+    6px 6px 0 #9a9a9a,
+    9px 9px 0 #5f5f5f,
+    12px 12px 15px rgba(0,0,0,.7);
+    text-align:center;
+}
+
+.aurora{
+    text-align:center;
+    color:white;
+    font-size:30px;
+    margin-bottom:35px;
+    margin-top:10px;
+}
+
+.cubo{
+    display:inline-block;
+    width:28px;
+    height:28px;
+    background:linear-gradient(135deg,#00ffff,#7b68ee,#ff66ff);
+    border:2px solid white;
+    margin-right:8px;
+    vertical-align:middle;
+}
+
+.btn{
+    width:380px;
+    padding:18px;
+    margin:8px;
+    font-size:24px;
+    font-weight:bold;
+    background:linear-gradient(#8a8a8a,#5f5f5f);
+    color:white;
+    border:3px solid #444;
+    cursor:pointer;
+    transition:.2s;
+    box-shadow: inset 0 2px 0 rgba(255,255,255,.3), 0 6px 0 #333, 0 10px 15px rgba(0,0,0,.4);
+}
+
+.btn:hover{
+    background:linear-gradient(#63d963,#2c9e2c);
+    border-color:#1d6f1d;
+    transform:translateY(-2px);
+}
+
+.btn:active{ transform:translateY(4px); }
+
+.criarConta{
+    position:fixed;
+    left:20px;
+    bottom:20px;
+    width:230px;
+    padding:15px;
+    background:linear-gradient(#8a8a8a,#5f5f5f);
+    color:white;
+    border:3px solid #444;
+    font-size:22px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.criarConta:hover{ background:linear-gradient(#63d963,#2c9e2c); }
+
+.versao{
+    position:fixed;
+    right:20px;
+    bottom:20px;
+    color:white;
+    font-size:22px;
+    font-weight:bold;
+}
+
+/* ========================= */
+/* TELA DE JOGAR (MODAL)     */
+/* ========================= */
+
+.modal-jogar {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    background: rgba(0,0,0,0.8);
+    justify-content: center;
+    align-items: center;
+}
+
+.conteudo-modal {
+    background: #2c2c2c;
+    border: 4px solid #4a4a4a;
+    width: 650px;
+    max-width: 95%;
+    padding: 20px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.8);
+    position: relative;
+}
+
+/* Abas Superiores */
+.abas-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    border-bottom: 3px solid #4a4a4a;
+    padding-bottom: 10px;
+}
+
+.aba-btn {
+    flex: 1;
+    padding: 12px;
+    font-size: 20px;
+    font-weight: bold;
+    background: #1a1a1a;
+    color: #7a7a7a;
+    border: 2px solid #4a4a4a;
+    cursor: pointer;
+    margin: 0 4px;
+}
+
+.aba-btn.ativa {
+    background: #4a4a4a;
+    color: #fff;
+    border-color: #fff;
+}
+
+/* Paineis de Conteúdo */
+.painel-conteudo {
+    display: none;
+    min-height: 250px;
+    color: white;
+}
+
+.painel-conteudo.ativo {
+    display: block;
+}
+
+/* Tela de Criação de Mundo */
+.campo-grupo {
+    margin-bottom: 20px;
+}
+
+.campo-grupo label {
+    display: block;
+    font-size: 18px;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.campo-grupo input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    font-size: 18px;
+    background: #1a1a1a;
+    border: 2px solid #4a4a4a;
+    color: white;
+    outline: none;
+}
+
+.modo-opcoes {
+    display: flex;
+    gap: 10px;
+}
+
+.modo-btn {
+    flex: 1;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    background: #1a1a1a;
+    color: white;
+    border: 2px solid #4a4a4a;
+    cursor: pointer;
+}
+
+.modo-btn.selecionado {
+    background: #2c9e2c;
+    border-color: #fff;
+}
+
+/* Botões Inferiores do Modal */
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.btn-modal {
+    padding: 12px 25px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    border: 2px solid #444;
+    color: white;
+}
+
+.btn-criar { background: #2c9e2c; }
+.btn-criar:hover { background: #3cd03c; }
+.btn-fechar { background: #b30000; }
+.btn-fechar:hover { background: #e60000; }
+
+/* Responsivo */
+@media(max-width:600px){
+    .minecraft{ font-size:48px; }
+    .aurora{ font-size:22px; }
+    .btn{ width:90%; }
+    .abas-container { flex-direction: column; gap: 5px; }
+    .modo-opcoes { flex-direction: column; }
+}
+</style>
 </head>
 <body>
 
-    <div id="crosshair">+</div>
-    <div id="ui-info">
-        <strong>Ferramenta:</strong> <span id="ui-tool-txt" style="color: #eab308;">Picareta de Madeira</span><br>
-        <strong>Mundo:</strong> <span>Vila Comercial & Cavernas</span><br>
-        <strong>Posição:</strong> <span id="pos-txt">X: 0, Y: 0, Z: 0</span>
+<div id="loadingScreen">
+    <div class="loadingTitle">MINECRAFT</div>
+    <div class="loadingSubtitle">Aurora Edition</div>
+    <div class="loadingBar"><div class="loadingFill" id="loadingFill"></div></div>
+    <div class="loadingText" id="loadingText">Carregando... 0%</div>
+</div>
+
+<div id="gameLoadingScreen">
+    <div class="loadingTitle" style="font-size: 45px;">Gerando Mundo...</div>
+    <div class="loadingBar"><div class="loadingFill" id="gameLoadingFill" style="background: dodgerblue;"></div></div>
+    <div class="loadingText" id="gameLoadingText" style="font-style: italic; color: #ddd;">"Não mate golfinhos, seu monstro."</div>
+</div>
+
+<div id="mainMenu">
+    <div class="background"></div>
+    <div class="overlay"></div>
+
+    <div class="menu">
+        <div class="minecraft">MINECRAFT</div>
+        <div class="aurora"><span class="cubo"></span>AURORA EDITION</div>
+
+        <button class="btn" onclick="abrirModalJogar()">Jogar</button>
+        <button class="btn" onclick="alert('Abrindo Configurações...')">Configurações</button>
+        <button class="btn" onclick="alert('Abrindo Marketplace...')">Marketplace</button>
     </div>
+
+    <button class="criarConta" onclick="alert('Sistema de Conta em desenvolvimento!')">Criar Conta</button>
+    <div class="versao">v1.2</div>
+</div>
+
+<div class="modal-jogar" id="modalJogar">
+    <div class="conteudo-modal">
+        
+        <div class="abas-container">
+            <button class="aba-btn ativa" onclick="mudarAba('mundos')">Mundos</button>
+            <button class="aba-btn" onclick="mudarAba('realms')">Realms</button>
+            <button class="aba-btn" onclick="mudarAba('servidores')">Servidores</button>
+        </div>
+
+        <div id="painel-mundos" class="painel-conteudo ativo">
+            <h3 style="margin-bottom:15px;">Criar Novo Mundo</h3>
+            
+            <div class="campo-grupo">
+                <label>Nome do Mundo:</label>
+                <input type="text" id="nomeMundo" value="Meu Mundo">
+            </div>
+
+            <div class="campo-grupo">
+                <label>Modo de Jogo:</label>
+                <div class="modo-opcoes">
+                    <button class="modo-btn selecionado" id="btn-criativo" onclick="selecionarModo('Criativo')">Criativo</button>
+                    <button class="modo-btn" id="btn-sobrevivencia" onclick="selecionarModo('Sobrevivência')">Sobrevivência</button>
+                    <button class="modo-btn" id="btn-hardcore" onclick="selecionarModo('Hardcore')">Hardcore</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="painel-realms" class="painel-conteudo">
+            <p style="text-align:center; margin-top:50px; color:#aaa;">Realms não disponível nesta versão.</p>
+        </div>
+
+        <div id="painel-servidores" class="painel-conteudo">
+            <p style="text-align:center; margin-top:50px; color:#aaa;">Servidores não disponíveis nesta versão.</p>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-modal btn-fechar" onclick="fecharModalJogar()">Voltar</button>
+            <button class="btn-modal btn-criar" id="btnCriarMundo" onclick="iniciarCarregamentoMundo()">Criar Mundo</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+// --- Carregamento Inicial ---
+let progresso = 0;
+let barra = document.getElementById("loadingFill");
+let texto = document.getElementById("loadingText");
+
+let carregamento = setInterval(() => {
+    progresso++;
+    barra.style.width = progresso + "%";
+    texto.innerHTML = "Carregando... " + progresso + "%";
+
+    if(progresso >= 100){
+        clearInterval(carregamento);
+        setTimeout(()=>{
+            document.getElementById("loadingScreen").style.opacity="0";
+            setTimeout(()=>{
+                document.getElementById("loadingScreen").style.display="none";
+                document.getElementById("mainMenu").style.display="block";
+            },1000);
+        },500);
+    }
+}, 40);
+
+// --- Sistema do Menu de Jogar (Abas) ---
+let modoSelecionado = "Criativo";
+
+function abrirModalJogar() {
+    document.getElementById("modalJogar").style.display = "flex";
+}
+
+function fecharModalJogar() {
+    document.getElementById("modalJogar").style.display = "none";
+}
+
+function mudarAba(aba) {
+    // Resetar botões das abas
+    let botoes = document.querySelectorAll('.aba-btn');
+    botoes.forEach(b => b.classList.remove('ativa'));
     
-    <div id="wallet-hud">🟢 Esmeraldas: <span id="emerald-count">0</span></div>
+    // Resetar painéis
+    let paineis = document.querySelectorAll('.painel-conteudo');
+    paineis.forEach(p => p.classList.remove('ativo'));
 
-    <div id="mobile-controls">
-        <div id="joystick-zone"><div id="joystick-handle"></div></div>
-        <button class="mobile-btn" id="btn-mobile-jump">🚀</button>
-        <button class="mobile-btn" id="btn-mobile-break">💥</button>
-        <button class="mobile-btn" id="btn-mobile-build">🧱</button>
-        <button class="mobile-btn" id="btn-mobile-inv">🎒</button>
-    </div>
+    // Ativar o correto e gerenciar botão de criar mundo
+    let btnCriar = document.getElementById("btnCriarMundo");
+    if (aba === 'mundos') {
+        document.getElementById('painel-mundos').classList.add('ativo');
+        botoes[0].classList.add('ativa');
+        btnCriar.style.display = "block";
+    } else if (aba === 'realms') {
+        document.getElementById('painel-realms').classList.add('ativo');
+        botoes[1].classList.add('ativa');
+        btnCriar.style.display = "none";
+    } else if (aba === 'servidores') {
+        document.getElementById('painel-servidores').classList.add('ativo');
+        botoes[2].classList.add('ativa');
+        btnCriar.style.display = "none";
+    }
+}
 
-    <div id="hotbar">
-        <div class="hotbar-slot active" onclick="selectHotbarSlot(1, 'Picareta de Madeira')" id="slot-1"><div class="slot-icon" style="background:#92400e;"></div>P. Madeira</div>
-        <div class="hotbar-slot" onclick="selectHotbarSlot(2, 'Picareta de Pedra')" id="slot-2"><div class="slot-icon" style="background:#737373;"></div>P. Pedra</div>
-        <div class="hotbar-slot" onclick="selectHotbarSlot(3, 'Bancada')" id="slot-3"><div class="slot-icon" style="background:#b45309;"></div>Bancada</div>
-        <div class="hotbar-slot" onclick="selectHotbarSlot(4, 'Fornalha')" id="slot-4"><div class="slot-icon" style="background:#374151;"></div>Fornalha</div>
-        <div class="hotbar-slot" onclick="selectHotbarSlot(5, 'Pedra')" id="slot-5"><div class="slot-icon" style="background:#4b5563;"></div>Bloco Pedra</div>
-    </div>
+function selecionarModo(modo) {
+    modoSelecionado = modo;
+    document.getElementById("btn-criativo").classList.remove("selecionado");
+    document.getElementById("btn-sobrevivencia").classList.remove("selecionado");
+    document.getElementById("btn-hardcore").classList.remove("selecionado");
 
-    <div id="furnace-screen">
-        <h3>🔥 FORNALHA</h3>
-        <div class="furnace-container">
-            <div>
-                <p style="font-size: 11px; color:#aaa;">Entrada (Bruto)</p>
-                <div class="furnace-slot" id="furnace-input" onclick="colocarNaFornalha()">Vazio</div>
-            </div>
-            <div style="font-size: 20px; color: #eab308;">▼</div>
-            <div>
-                <p style="font-size: 11px; color:#aaa;">Resultado Fundido</p>
-                <div class="furnace-slot" style="border-color: #2ecc71; font-weight: bold;" id="furnace-output" onclick="coletarFornalha()">Vazio</div>
-            </div>
-        </div>
-        <button class="btn-furnace-close" onclick="fecharFornalha()">Fechar Fornalha</button>
-    </div>
+    if(modo === 'Criativo') document.getElementById("btn-criativo").classList.add("selecionado");
+    if(modo === 'Sobrevivência') document.getElementById("btn-sobrevivencia").classList.add("selecionado");
+    if(modo === 'Hardcore') document.getElementById("btn-hardcore").classList.add("selecionadd"); // Corrigido a classe abaixo
+    if(modo === 'Hardcore') document.getElementById("btn-hardcore").className = "modo-btn selecionado";
+}
 
-    <div id="inventory-screen">
-        <h3 id="inv-title" style="text-align: center; border-bottom: 2px solid #444; padding-bottom: 5px;">🔨 MESA DE TRABALHO</h3>
-        <div class="inv-layout">
-            <div class="inv-section">
-                <p style="font-size: 11px; color: #aaa; margin-bottom: 5px;">Selecione insumo da mochila:</p>
-                <div class="inventory-grid">
-                    <div class="inv-item" onclick="selecionarInsumo('Pedra')">🪨 Cobblestone</div>
-                    <div class="inv-item" onclick="selecionarInsumo('Carvão')">⬛ Carvão</div>
-                    <div class="inv-item" onclick="selecionarInsumo('Ferro Bruto')">🟫 Ferro Bruto</div>
-                    <div class="inv-item" onclick="selecionarInsumo('Cobre Bruto')">🟧 Cobre Bruto</div>
-                </div>
-            </div>
-            <div class="craft-section">
-                <p style="font-size: 11px; font-weight: bold; color: #2ecc71;">Grade Avançada 3x3</p>
-                <div class="craft-grid-3x3">
-                    <div class="craft-slot" id="craft3x3-0" onclick="colocarSlotMesa(0)">-</div>
-                    <div class="craft-slot" id="craft3x3-1" onclick="colocarSlotMesa(1)">-</div>
-                    <div class="craft-slot" id="craft3x3-2" onclick="colocarSlotMesa(2)">-</div>
-                    <div class="craft-slot" id="craft3x3-3" onclick="colocarSlotMesa(3)">-</div>
-                    <div class="craft-slot" id="craft3x3-4" onclick="colocarSlotMesa(4)">-</div>
-                    <div class="craft-slot" id="craft3x3-5" onclick="colocarSlotMesa(5)">-</div>
-                    <div class="craft-slot" id="craft3x3-6" onclick="colocarSlotMesa(6)">-</div>
-                    <div class="craft-slot" id="craft3x3-7" onclick="colocarSlotMesa(7)">-</div>
-                    <div class="craft-slot" id="craft3x3-8" onclick="colocarSlotMesa(8)">-</div>
-                </div>
-                <div class="result-slot" id="craft-result" onclick="coletarMesa()"><span id="result-text">Vazio</span></div>
-            </div>
-        </div>
-        <button id="btn-close-inv" onclick="fecharMesa()">Fechar Grade</button>
-    </div>
+// --- Nova Tela de Carregamento do Mundo ---
+const dicasMinecraft = [
+    "Não mate golfinhos, seu monstro.",
+    "Sabia que se assar um tronco de madeira em uma fornalha ele vira carvão vegetal?",
+    "Nunca cave diretamente para baixo!",
+    "Gatos espantam Creepers. Miau!",
+    "Olhar nos olhos de um Enderman não é uma boa ideia.",
+    "Precisa de lã? Use tesouras nas ovelhas para não machucá-las."
+];
 
-    <div id="loadingScreen">
-        <div class="loadingTitle">MINECRAFT CORE</div>
-        <div class="loadingBar"><div class="loadingFill" id="loadingFill"></div></div>
-    </div>
-    <div id="mainMenu">
-        <div class="menu-center">
-            <h1 style="color: white; margin-bottom: 20px; font-size: 40px; text-shadow: 2px 2px #000;">AURORA ECONOMY</h1>
-            <button class="btn-start" onclick="entrarMundo()">Entrar e Minerar</button>
-        </div>
-    </div>
+function iniciarCarregamentoMundo() {
+    let nomeMundo = document.getElementById("nomeMundo").value || "Meu Mundo";
+    
+    // Fechar o modal e abrir a nova tela de carregamento do jogo
+    fecharModalJogar();
+    document.getElementById("mainMenu").style.display = "none";
+    
+    let gameLoadingScreen = document.getElementById("gameLoadingScreen");
+    let gameBar = document.getElementById("gameLoadingFill");
+    let gameText = document.getElementById("gameLoadingText");
+    
+    gameLoadingScreen.style.display = "flex";
+    gameLoadingScreen.style.opacity = "1";
+    
+    let gameProgresso = 0;
+    gameBar.style.width = "0%";
+    
+    // Escolhe uma dica aleatória
+    let dicaAleatoria = dicasMinecraft[Math.floor(Math.random() * dicasMinecraft.length)];
+    gameText.innerHTML = `"${dicaAleatoria}"`;
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/math/ImprovedNoise.js"></script>
+    // Intervalo de troca de dicas a cada 2 segundos se demorar
+    let dicaInterval = setInterval(() => {
+        let novaDica = dicasMinecraft[Math.floor(Math.random() * dicasMinecraft.length)];
+        gameText.innerHTML = `"${novaDica}"`;
+    }, 2000);
 
-    <script>
-        let gameStarted = false; let isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-        
-        // Dados de Economia e Inventário Interno
-        let esmeraldas = 0;
-        let mochila = { "Pedra": 5, "Carvão": 0, "Ferro Bruto": 0, "Cobre Bruto": 0 };
-        let itemSelecionadoMochila = null;
-        let gradeMesa = new Array(9).fill(null);
-        let resultadoMesa = null;
-        
-        let ferramentaAtual = "Picareta de Madeira"; // Determina o tier de mineração
-        let idBlocoSelecionadoHotbar = 5; // Pedra padrão para construção
+    let jogoCarregado = setInterval(() => {
+        gameProgresso += 2; // Sobe de 2 em 2%
+        gameBar.style.width = gameProgresso + "%";
 
-        const scene = new THREE.Scene(); const sky = new THREE.Color(0x7dd3fc);
-        scene.background = sky; scene.fog = new THREE.FogExp2(sky, 0.04);
-
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true }); renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
-
-        let cameraRotation = { x: 0, y: 0 }; let mouseLocked = false;
-
-        // PointerLock e Toques direcionais
-        if(!isMobile) {
-            document.body.addEventListener('click', () => { 
-                if (gameStarted && document.getElementById('inventory-screen').style.display !== 'block' && document.getElementById('furnace-screen').style.display !== 'block') {
-                    document.body.requestPointerLock();
-                }
-            });
-            document.addEventListener('pointerlockchange', () => { mouseLocked = document.pointerLockElement === document.body; });
-            document.addEventListener('mousemove', (e) => { if (!mouseLocked || !gameStarted) return; cameraRotation.y -= e.movementX * 0.0025; cameraRotation.x -= e.movementY * 0.0025; cameraRotation.x = Math.max(-Math.PI/2.2, Math.min(Math.PI/2.2, cameraRotation.x)); });
-        } else {
-            let touchLookId = null; let lastTouchX = 0, lastTouchY = 0;
-            window.addEventListener('touchstart', (e) => { if(!gameStarted) return; for(let i=0; i<e.changedTouches.length; i++) { let t = e.changedTouches[i]; if(t.clientX > window.innerWidth / 2) { touchLookId = t.identifier; lastTouchX = t.clientX; lastTouchY = t.clientY; } } });
-            window.addEventListener('touchmove', (e) => { if(!gameStarted) return; for(let i=0; i<e.changedTouches.length; i++) { let t = e.changedTouches[i]; if(t.identifier === touchLookId) { cameraRotation.y -= (t.clientX - lastTouchX) * 0.005; cameraRotation.x -= (t.clientY - lastTouchY) * 0.005; cameraRotation.x = Math.max(-Math.PI/2.2, Math.min(Math.PI/2.2, cameraRotation.x)); lastTouchX = t.clientX; lastTouchY = t.clientY; } } });
-            window.addEventListener('touchend', (e) => { for(let i=0; i<e.changedTouches.length; i++) if(e.changedTouches[i].identifier === touchLookId) touchLookId = null; });
-        }
-
-        const keys = { w: false, a: false, s: false, d: false, space: false };
-        let velocity = new THREE.Vector3(); let moveInput = new THREE.Vector2(); let canJump = false; const playerHeight = 2.0;
-
-        function selectHotbarSlot(slot, nomeFerramentaOuBloco) {
-            for(let i=1; i<=5; i++) document.getElementById(`slot-${i}`).classList.remove('active');
-            document.getElementById(`slot-${slot}`).classList.add('active');
+        if(gameProgresso >= 100){
+            clearInterval(jogoCarregado);
+            clearInterval(dicaInterval);
             
-            if(nomeFerramentaOuBloco.includes("Picareta")) {
-                ferramentaAtual = nomeFerramentaOuBloco;
-                document.getElementById('ui-tool-txt').innerText = ferramentaAtual;
-                document.getElementById('ui-tool-txt').style.color = (ferramentaAtual === "Picareta de Pedra") ? "#9ca3af" : "#eab308";
-            } else {
-                idBlocoSelecionadoHotbar = slot === 3 ? 10 : (slot === 4 ? 11 : 3); // 10=Bancada, 11=Fornalha, 3=Pedra
-            }
+            setTimeout(() => {
+                alert(`Mundo "${nomeMundo}" criado com sucesso no modo ${modoSelecionado}! (Aqui começaria o seu jogo)`);
+                // Volta para o menu principal após fechar o alerta
+                gameLoadingScreen.style.display = "none";
+                document.getElementById("mainMenu").style.display = "block";
+            }, 500);
         }
+    }, 60); // Velocidade do carregamento do mundo
+}
+</script>
 
-        document.addEventListener('keydown', (e) => {
-            if (!gameStarted) return;
-            if (e.key >= '1' && e.key <= '5') {
-                let nomes = ["Picareta de Madeira", "Picareta de Pedra", "Bancada", "Fornalha", "Pedra"];
-                selectHotbarSlot(parseInt(e.key), nomes[parseInt(e.key)-1]);
-            }
-            if (e.code === 'Space') keys.space = true;
-            if (keys.hasOwnProperty(e.key.toLowerCase())) keys[e.key.toLowerCase()] = true;
-        });
-        document.addEventListener('keyup', (e) => { if (e.code === 'Space') keys.space = false; if (keys.hasOwnProperty(e.key.toLowerCase())) keys[e.key.toLowerCase()] = false; });
-
-        // --- SISTEMAS DE INTERFACES INDEPENDENTES (MESA / FORNALHA) ---
-        function abrirMesa() { if(!isMobile) document.exitPointerLock(); document.getElementById('inventory-screen').style.display='block'; }
-        function fecharMesa() { document.getElementById('inventory-screen').style.display='none'; }
-        function abrirFornalha() { if(!isMobile) document.exitPointerLock(); document.getElementById('furnace-screen').style.display='block'; atualizarFornalhaUI(); }
-        function fecharFornalha() { document.getElementById('furnace-screen').style.display='none'; }
-
-        function selecionarInsumo(nome) { itemSelecionadoMochila = nome; }
-        function colocarSlotMesa(s) {
-            if(!itemSelecionadoMochila) { gradeMesa[s] = null; document.getElementById(`craft3x3-${s}`).innerText="-"; verificarMesa(); return; }
-            gradeMesa[s] = itemSelecionadoMochila; document.getElementById(`craft3x3-${s}`).innerText=itemSelecionadoMochila[0];
-            itemSelecionadoMochila = null; verificarMesa();
-        }
-        function verificarMesa() {
-            // Receita simples: Se encher o grid de pedra = cria uma Fornalha
-            let counts = gradeMesa.filter(x => x === 'Pedra').length;
-            if(counts >= 4) { resultadoMesa = "Fornalha Nova"; document.getElementById("result-text").innerText="Fornalha"; }
-            else { resultadoMesa = null; document.getElementById("result-text").innerText="Vazio"; }
-        }
-        function coletarMesa() { if(resultadoMesa) { alert("Você fabricou uma estrutura!"); gradeMesa.fill(null); for(let i=0;i<9;i++)document.getElementById(`craft3x3-${i}`).innerText="-"; document.getElementById("result-text").innerText="Vazio"; } }
-
-        function atualizarFornalhaUI() {
-            document.getElementById("furnace-input").innerText = mochila["Ferro Bruto"] > 0 ? "Ferro Bruto" : (mochila["Cobre Bruto"] > 0 ? "Cobre Bruto" : "Vazio");
-        }
-        function colocarNaFornalha() {
-            if(mochila["Carvão"] <= 0) { alert("Você precisa de Carvão na mochila para usar de combustível!"); return; }
-            if(mochila["Ferro Bruto"] > 0) {
-                mochila["Ferro Bruto"]--; mochila["Carvão"]--;
-                document.getElementById("furnace-output").innerText = "Barra Ferro";
-            } else if(mochila["Cobre Bruto"] > 0) {
-                mochila["Cobre Bruto"]--; mochila["Carvão"]--;
-                document.getElementById("furnace-output").innerText = "Barra Cobre";
-            }
-            atualizarFornalhaUI();
-        }
-        function coletarFornalha() {
-            let out = document.getElementById("furnace-output").innerText;
-            if(out !== "Vazio") { alert(`Você retirou uma: ${out}!`); document.getElementById("furnace-output").innerText = "Vazio"; }
-        }
-
-        // --- MATERIAIS DOS MINÉRIOS ---
-        function tex(c1, c2) {
-            const cv = document.createElement('canvas'); cv.width=16; cv.height=16; const ctx = cv.getContext('2d');
-            for(let x=0; x<16; x++) for(let y=0; y<16; y++) { ctx.fillStyle = Math.random()>0.25?c1:c2; ctx.fillRect(x,y,1,1); }
-            const t = new THREE.CanvasTexture(cv); t.magFilter=THREE.NearestFilter; t.minFilter=THREE.NearestFilter; return new THREE.MeshLambertMaterial({map:t});
-        }
-        const mGrama=tex('#5c9e32','#4d8728'), mTerra=tex('#866043','#745136'), mPedra=tex('#6b7280','#4b5563');
-        const mCarvao=tex('#1f2937','#111827'), mFerro=tex('#d97706','#b45309'), mCobre=tex('#ca8a04','#a16207'), mEsmeralda=tex('#10b981','#047857');
-        const mBancada=tex('#b45309','#78350f'), mFornalha=tex('#374151','#1f2937'), mPeada=tex('#d1d5db','#9ca3af');
-
-        const blockMap = new Map(); const blockGeo = new THREE.BoxGeometry(1,1,1);
-        function spawnBlock(x,y,z,mat,id) { const b=new THREE.Mesh(blockGeo,mat); b.position.set(x,y,z); b.userData={typeId:id}; scene.add(b); blockMap.set(`${x},${y},${z}`,b); return b; }
-
-        // --- ALDEÕES (NPCs COM MOVIMENTAÇÃO IA) ---
-        let villagers = [];
-        function spawnVillager(x, y, z) {
-            const geo = new THREE.BoxGeometry(0.6, 1.6, 0.6);
-            const mat = new THREE.MeshLambertMaterial({ color: 0x935116 }); // Roupa marrom clássica
-            const mesh = new THREE.Mesh(geo, mat); mesh.position.set(x, y + 0.8, z);
-            mesh.userData = { isVillager: true, dirX: 1, dirZ: 0, timer: 0 };
-            scene.add(mesh); villagers.push(mesh);
-        }
-
-        function atualizarVillagers(delta) {
-            villagers.forEach(v => {
-                v.userData.timer += delta;
-                if(v.userData.timer > 2.5) { // Muda de direção a cada 2.5s
-                    v.userData.dirX = (Math.random() - 0.5) * 2;
-                    v.userData.dirZ = (Math.random() - 0.5) * 2;
-                    v.userData.timer = 0;
-                }
-                v.position.x += v.userData.dirX * 1.2 * delta;
-                v.position.z += v.userData.dirZ * 1.2 * delta;
-                
-                // Fixa altura do relevo para não afundarem
-                let gh = getGroundHeight(v.position.x, v.position.z);
-                if(gh > 0) v.position.y = gh + 0.8;
-            });
-        }
-
-        // --- MAPA PROCEDIMENTAL COM 99% DE CHANCE DE MINÉRIOS NAS CAVERNAS/MONTANHAS ---
-        function generateWorld() {
-            // Gera base do relevo e injeta minérios maciços abaixo do Y=4 e nas encostas
-            for(let x=-14; x<=14; x++) {
-                for(let z=-14; z<=14; z++) {
-                    let h = Math.floor(perlin.noise(x*0.07, 0, z*0.07)*5)+6;
-                    for(let y=0; y<=h; y++) {
-                        if(y === h) {
-                            spawnBlock(x, y, z, mGrama, 1);
-                        } else if(y > h-2) {
-                            spawnBlock(x, y, z, mTerra, 2);
-                        } else {
-                            // Subsolo profundo ou encostas altas: 99% de chance de converter Pedra em Veio de Minério
-                            let rand = Math.random();
-                            if(y < 4 || h > 8) { // Critério para caverna ou montanha elevada
-                                if(rand < 0.30) spawnBlock(x, y, z, mCarvao, 6);       // Carvão
-                                else if(rand < 0.55) spawnBlock(x, y, z, mCobre, 7);  // Cobre
-                                else if(rand < 0.85) spawnBlock(x, y, z, mFerro, 8);  // Ferro
-                                else if(rand < 0.90) spawnBlock(x, y, z, mEsmeralda, 9); // Esmeralda
-                                else spawnBlock(x, y, z, mPedra, 3);
-                            } else {
-                                spawnBlock(x, y, z, mPedra, 3);
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Spawna os Aldeões perto do ponto inicial da Vila comercial
-            spawnVillager(2, getGroundHeight(2, -2), -2);
-            spawnVillager(-3, getGroundHeight(-3, -4), -4);
-        }
-
-        function getGroundHeight(x,z) { let fx=Math.round(x), fz=Math.round(z); for(let y=20; y>=0; y--) { if(blockMap.has(`${fx},${y},${fz}`)) return y; } return 0; }
-
-        // --- SISTEMA INTERATIVO DE QUEBRA E TRADING (RAYCAST) ---
-        const ray = new THREE.Raycaster();
-        window.addEventListener('mousedown', (e) => { if(isMobile || !mouseLocked || !gameStarted) return; acao(e.button); });
-        
-        function acao(botao) {
-            ray.setFromCamera(new THREE.Vector2(0,0), camera);
-            
-            // 1. Checa se o clique interceptou um Aldeão (Comércio) antes dos blocos
-            const alvosVillagers = ray.intersectObjects(villagers);
-            if(alvosVillagers.length > 0 && alvosVillagers[0].distance < 5.0) {
-                if(esmeraldas >= 4) {
-                    esmeraldas -= 4; mochila["Pedra"] += 10;
-                    document.getElementById("emerald-count").innerText = esmeraldas;
-                    alert("🛒 Troca Efetuada com o Aldeão! Você deu 4 Esmeraldas por 10x Pedras Lapidadas!");
-                } else {
-                    alert("👨‍🌾 Aldeão diz: 'Você precisa de pelo menos 4 Esmeraldas para negociar comigo!'");
-                }
-                return;
-            }
-
-            // 2. Interação com os Blocos normais do cenário
-            const intersects = ray.intersectObjects(Array.from(blockMap.values()));
-            if(intersects.length > 0 && intersects[0].distance < 6) {
-                const intersect = intersects[0]; const block = intersect.object;
-                const bPos = block.position; const id = block.userData.typeId;
-
-                if(botao === 0) { // QUEBRAR BLOCO
-                    // Lógica restritiva de Tier de Picareta
-                    if(id === 7 || id === 8 || id === 9) { // Cobre, Ferro ou Esmeralda
-                        if(ferramentaAtual !== "Picareta de Pedra") {
-                            alert("❌ Esse minério requer uma Picareta de Pedra ou superior para dropar o material!");
-                            scene.remove(block); blockMap.delete(`${bPos.x},${bPos.y},${bPos.z}`);
-                            return;
-                        }
-                    }
-
-                    // Processa Coleta/Drop com base no tipo
-                    if(id === 6) { mochila["Carvão"]++; alert("Recolhido: 1x Carvão Mineral"); }
-                    else if(id === 7) { mochila["Cobre Bruto"]++; alert("Recolhido: 1x Cobre Bruto (Precisa fundir!)"); }
-                    else if(id === 8) { mochila["Ferro Bruto"]++; alert("Recolhido: 1x Ferro Bruto (Precisa fundir!)"); }
-                    else if(id === 9) { 
-                        let qtd = Math.floor(Math.random() * 3) + 3; // Dropa entre 3 e 5
-                        esmeraldas += qtd;
-                        document.getElementById("emerald-count").innerText = esmeraldas;
-                        alert(`💎 Brilhante! Você coletou +${qtd} Esmeraldas deste veio!`);
-                    } else if(id === 3) {
-                        mochila["Pedra"]++;
-                    }
-
-                    scene.remove(block); blockMap.delete(`${bPos.x},${bPos.y},${bPos.z}`);
-                } 
-                else if(botao === 2) { // INTERAGIR / COLOCAR ESTRUTURA
-                    if(id === 10) { abrirMesa(); return; }
-                    if(id === 11) { abrirFornalha(); return; }
-
-                    const n = new THREE.Vector3().copy(intersect.point).add(intersect.face.normal).round();
-                    let mats = { 10: mBancada, 11: mFornalha, 3: mPedra };
-                    if(mats[idBlocoSelecionadoHotbar]) {
-                        spawnBlock(n.x, n.y, n.z, mats[idBlocoSelecionadoHotbar], idBlocoSelecionadoHotbar);
-                    }
-                }
-            }
-        }
-
-        // Joystick Mobile Adaptado
-        if(isMobile) {
-            document.getElementById('btn-mobile-break').addEventListener('touchstart', () => acao(0));
-            document.getElementById('btn-mobile-build').addEventListener('touchstart', () => acao(2));
-            document.getElementById('btn-mobile-inv').addEventListener('touchstart', () => abrirMesa());
-            const jz = document.getElementById('joystick-zone'); const jh = document.getElementById('joystick-handle');
-            let jId = null; let jc = {x:0, y:0};
-            jz.addEventListener('touchstart', (e) => { let r=jz.getBoundingClientRect(); jc.x=r.left+r.width/2; jc.y=r.top+r.height/2; jId=e.changedTouches[0].identifier; });
-            jz.addEventListener('touchmove', (e) => {
-                if(jId===null) return; let t=null; for(let i=0; i<e.touches.length; i++) if(e.touches[i].identifier===jId) t=e.touches[i]; if(!t) return;
-                let dx=t.clientX-jc.x; let dy=t.clientY-jc.y; let d=Math.sqrt(dx*dx+dy*dy); if(d>50){dx=(dx/d)*50; dy=(dy/d)*50;}
-                jh.style.transform=`translate(${dx}px,${dy}px)`; moveInput.x=dx/50; moveInput.y=-dy/50;
-            });
-            jz.addEventListener('touchend', () => { jId=null; jh.style.transform='translate(0px,0px)'; moveInput.set(0,0); });
-            document.getElementById('btn-mobile-jump').addEventListener('touchstart', () => keys.space=true); document.getElementById('btn-mobile-jump').addEventListener('touchend', () => keys.space=false);
-        }
-
-        window.addEventListener('contextmenu', e => e.preventDefault());
-
-        let p=0; let cl=setInterval(() => { p+=20; document.getElementById("loadingFill").style.width=p+"%"; if(p>=100){ clearInterval(cl); document.getElementById("loadingScreen").style.display="none"; document.getElementById("mainMenu").style.display="block"; } },15);
-
-        function entrarMundo() {
-            document.getElementById("mainMenu").style.display="none";
-            document.getElementById("crosshair").style.display="block"; document.getElementById("ui-info").style.display="block"; document.getElementById("hotbar").style.display="block"; document.getElementById("wallet-hud").style.display="block";
-            if(isMobile) document.getElementById("mobile-controls").style.display="block";
-            camera.position.set(0, 14, 6); generateWorld(); gameStarted=true;
-        }
-
-        const clock = new THREE.Clock();
-        function animate() {
-            requestAnimationFrame(animate); const delta = Math.min(clock.getDelta(), 0.1);
-            if (gameStarted) {
-                atualizarVillagers(delta);
-                camera.rotation.order = 'YXZ'; camera.rotation.y = cameraRotation.y; camera.rotation.x = cameraRotation.x;
-                if(!isMobile) { moveInput.x = Number(keys.d) - Number(keys.a); moveInput.y = Number(keys.w) - Number(keys.s); }
-                velocity.x -= velocity.x * 10.0 * delta; velocity.z -= velocity.z * 10.0 * delta; velocity.y -= 22.0 * delta;
-                let f = new THREE.Vector3(0,0,-1).applyAxisAngle(new THREE.Vector3(0,1,0), cameraRotation.y).normalize();
-                let r = new THREE.Vector3(1,0,0).applyAxisAngle(new THREE.Vector3(0,1,0), cameraRotation.y).normalize();
-                let dir = new THREE.Vector3().addScaledVector(f, moveInput.y).addScaledVector(r, moveInput.x); if(dir.length()>0) dir.normalize();
-                velocity.z += dir.z * 40.0 * delta; velocity.x += dir.x * 40.0 * delta;
-                camera.position.x += velocity.x * delta; camera.position.z += velocity.z * delta; camera.position.y += velocity.y * delta;
-                let gh = getGroundHeight(camera.position.x, camera.position.z) + 0.5;
-                if (camera.position.y - playerHeight <= gh && velocity.y <= 0) { velocity.y = 0; camera.position.y = gh + playerHeight; canJump = true; }
-                if (keys.space && canJump) { velocity.y = 7.5; canJump = false; }
-                document.getElementById('pos-txt').innerText = `X: ${Math.round(camera.position.x)}, Y: ${Math.round(camera.position.y)}, Z: ${Math.round(camera.position.z)}`;
-            }
-            renderer.render(scene, camera);
-        }
-        window.addEventListener('resize', () => { camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
-        animate();
-    </script>
 </body>
 </html>
